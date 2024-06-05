@@ -1,3 +1,3 @@
-module github.com/astrorick/sekret
+module github.com/astrorick/seekret
 
 go 1.21.5

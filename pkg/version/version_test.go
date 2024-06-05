@@ -3,7 +3,7 @@ package version_test
 import (
 	"testing"
 
-	"github.com/astrorick/sekret/pkg/version"
+	"github.com/astrorick/seekret/pkg/version"
 )
 
 // TestVersionString calls Version.String() with different values and checks for valid return values

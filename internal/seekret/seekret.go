@@ -1,9 +1,9 @@
-package sekret
+package seekret
 
 import (
 	"fmt"
 
-	"github.com/astrorick/sekret/pkg/version"
+	"github.com/astrorick/seekret/pkg/version"
 )
 
 type Sekret struct {
