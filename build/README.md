@@ -1,3 +1,3 @@
 # Build
 
-This folder contains Sekret binary files.
+This folder contains compiled binary files.
