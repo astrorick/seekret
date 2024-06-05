@@ -1,15 +1,34 @@
 package main
 
 import (
+	"flag"
 	"log"
 
-	seekret "github.com/astrorick/seekret/internal/seekret"
+	"github.com/astrorick/seekret/internal/seekret"
 )
 
 func main() {
-	// TODO: read command line flags
+	// define flags to match command line arguments
+	var (
+		configFilePath string
+		displayHelp    bool
+	)
 
-	if err := seekret.New("path/to/config/file").Start(); err != nil {
+	// bind flags to variables
+	flag.StringVar(&configFilePath, "config", "", "Config file path.")
+	flag.BoolVar(&displayHelp, "help", false, "Display help.")
+
+	// parse flags
+	flag.Parse()
+
+	// Display help and exit if help flag is set
+	if displayHelp {
+		flag.Usage()
+		return
+	}
+
+	// run server with specified settings
+	if err := seekret.New(configFilePath).Start(); err != nil {
 		log.Fatal(err)
 	}
 }
