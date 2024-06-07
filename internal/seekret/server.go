@@ -8,15 +8,15 @@ import (
 )
 
 type Server struct {
-	serverVersion *version.Version
-	serverConfig  *Config
+	ServerVersion *version.Version
+	ServerConfig  *ServerConfig
 }
 
 func NewServer(configPath string) *Server {
 	// define server version
 	serverVersion := &version.Version{
 		Major: 0,
-		Minor: 5,
+		Minor: 7,
 		Patch: 0,
 	}
 
@@ -27,8 +27,8 @@ func NewServer(configPath string) *Server {
 	}
 
 	return &Server{
-		serverVersion: serverVersion,
-		serverConfig:  serverConfig,
+		ServerVersion: serverVersion,
+		ServerConfig:  serverConfig,
 	}
 }
 
@@ -42,7 +42,7 @@ func (s *Server) Start() error {
 
 	// print banner and welcome string
 	fmt.Println(serverBanner)
-	fmt.Printf("Seekret Server v%s by Astrorick\n\n", s.serverVersion)
+	fmt.Printf("Seekret Server v%s by Astrorick\n\n", s.ServerVersion)
 
 	// exit
 	return nil

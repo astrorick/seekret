@@ -11,7 +11,9 @@
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/seekret_server",
             "env": {},
-            "args": [],
+            "args": [
+                "-config", "/home/astrorick/Desktop/seekret/configs/default.json",
+            ],
             "showLog": true
         },
         {
