@@ -7,12 +7,12 @@ import (
 	"github.com/astrorick/seekret/pkg/version"
 )
 
-type Seekret struct {
+type Server struct {
 	serverVersion *version.Version
 	serverConfig  *Config
 }
 
-func New(configPath string) *Seekret {
+func NewServer(configPath string) *Server {
 	// define server version
 	serverVersion := &version.Version{
 		Major: 0,
@@ -26,13 +26,13 @@ func New(configPath string) *Seekret {
 		log.Fatal(err)
 	}
 
-	return &Seekret{
+	return &Server{
 		serverVersion: serverVersion,
 		serverConfig:  serverConfig,
 	}
 }
 
-func (s *Seekret) Start() error {
+func (s *Server) Start() error {
 	// define banner
 	serverBanner := " __           _             _   \n" +
 		"/ _\\ ___  ___| | ___ __ ___| |_ \n" +
