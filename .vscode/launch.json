@@ -12,7 +12,7 @@
             "program": "${workspaceFolder}/cmd/seekret_server",
             "env": {},
             "args": [
-                "-config", "/home/astrorick/Desktop/seekret/configs/default.json",
+                "-config", "/home/astrorick/Desktop/seekret/configs/default.yaml",
             ],
             "showLog": true
         },

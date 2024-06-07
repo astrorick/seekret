@@ -1,16 +1,23 @@
 package seekret
 
 import (
-	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
 
 type ServerConfig struct {
-	ConfigPath      string `json:"configPath"`
-	DatabaseConnStr string `json:"databaseConnStr"`
-	HTTPServerPort  uint16 `json:"httpServerPort"`
+	ConfigPath      string `yaml:"configPath"`
+	DatabaseConnStr string `yaml:"databaseConnStr"`
+	HTTPServerPort  uint16 `yaml:"httpServerPort"`
+}
+
+// printable config representation
+func (sc *ServerConfig) String() string {
+	return fmt.Sprintf("%s: {\n\tDatabase Connection String: '%s'\n\tHTTP Server Port: %d\n}", sc.ConfigPath, sc.DatabaseConnStr, sc.HTTPServerPort)
 }
 
 func loadServerConfig(configPath string) (*ServerConfig, error) {
@@ -29,7 +36,7 @@ func loadServerConfig(configPath string) (*ServerConfig, error) {
 
 	// unmarshal its content in a structure
 	var serverConfig ServerConfig
-	if err := json.Unmarshal(configBytes, &serverConfig); err != nil {
+	if err := yaml.Unmarshal(configBytes, &serverConfig); err != nil {
 		return nil, err
 	}
 
@@ -37,7 +44,7 @@ func loadServerConfig(configPath string) (*ServerConfig, error) {
 	serverConfig.ConfigPath = configPath
 
 	if serverConfig.DatabaseConnStr == "" {
-		return nil, errors.New("failed to load config file: no 'databaseConnStr' field was provided")
+		return nil, errors.New("missing required config field: databaseConnStr")
 	}
 
 	if serverConfig.HTTPServerPort == 0 {

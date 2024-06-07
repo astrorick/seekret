@@ -1,0 +1,3 @@
+---
+databaseConnStr: asd # this field is required
+httpServerPort: 3553 # defaults to 3553 if not provided
