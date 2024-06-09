@@ -11,13 +11,14 @@ import (
 
 type ServerConfig struct {
 	ConfigPath      string `yaml:"configPath"`
+	DatabaseType    string `yaml:"databaseType"`
 	DatabaseConnStr string `yaml:"databaseConnStr"`
 	HTTPServerPort  uint16 `yaml:"httpServerPort"`
 }
 
 // printable config representation
 func (sc *ServerConfig) String() string {
-	return fmt.Sprintf("%s: {\n\tDatabase Connection String: '%s'\n\tHTTP Server Port: %d\n}", sc.ConfigPath, sc.DatabaseConnStr, sc.HTTPServerPort)
+	return fmt.Sprintf("%s: {\n\tDatabase Type: %s\n\tDatabase Connection String: \"%s\"\n\tHTTP Server Port: %d\n}", sc.ConfigPath, sc.DatabaseType, sc.DatabaseConnStr, sc.HTTPServerPort)
 }
 
 func loadServerConfig(configPath string) (*ServerConfig, error) {
@@ -42,6 +43,10 @@ func loadServerConfig(configPath string) (*ServerConfig, error) {
 
 	// check data integrity and assign default values
 	serverConfig.ConfigPath = configPath
+
+	if serverConfig.DatabaseConnStr == "" {
+		return nil, errors.New("missing required config field: databaseType")
+	}
 
 	if serverConfig.DatabaseConnStr == "" {
 		return nil, errors.New("missing required config field: databaseConnStr")

@@ -1,3 +1,4 @@
 ---
-databaseConnStr: asd # this field is required
+databaseType: sqlite3 # this field is required
+databaseConnStr: ../../data/seekret.db # this field is required
 httpServerPort: 3553 # defaults to 3553 if not provided

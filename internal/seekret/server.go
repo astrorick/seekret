@@ -1,10 +1,12 @@
 package seekret
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 
 	"github.com/astrorick/seekret/pkg/version"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type Server struct {
@@ -43,6 +45,22 @@ func (s *Server) Start() error {
 	// print banner and welcome string
 	fmt.Println(serverBanner)
 	fmt.Printf("Seekret Server v%s by Astrorick\n\n", s.ServerVersion)
+
+	s.PrintServerConfig()
+
+	// initialize database object
+	db, err := sql.Open("sqlite3", s.ServerConfig.DatabaseConnStr)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	// ping database
+	if err := db.Ping(); err != nil {
+		return err
+	}
+
+	fmt.Println("DB OK")
 
 	// exit
 	return nil
