@@ -1,0 +1,66 @@
+package api
+
+import (
+	"database/sql"
+	"encoding/json"
+	"io"
+	"net/http"
+)
+
+// this is used to create a new user in the server database
+type CreateUserRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+func CreateUserRequestHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// check for the correct method
+		if r.Method != http.MethodPost {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		// parse request body
+		var newUser CreateUserRequest
+		reqBody, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "unable to read request body", http.StatusBadRequest)
+			return
+		}
+		if err := json.Unmarshal(reqBody, &newUser); err != nil {
+			http.Error(w, "unable to parse request content", http.StatusBadRequest)
+			return
+		}
+
+		// check parsed data
+		if newUser.Username == "" {
+			http.Error(w, "username not valid", http.StatusBadRequest)
+			return
+		}
+		if newUser.Password == "" {
+			http.Error(w, "password not valid", http.StatusBadRequest)
+			return
+		}
+
+		// check if specified username exists
+		var usernameCount int
+		if err := db.QueryRow("SELECT COUNT(*) FROM users WHERE username = ?", newUser.Username).Scan(&usernameCount); err != nil {
+			http.Error(w, "unable to read database", http.StatusInternalServerError)
+			return
+		}
+		if usernameCount > 0 {
+			http.Error(w, "username not available", http.StatusConflict)
+			return
+		}
+
+		// add new user
+		if _, err := db.Exec("INSERT INTO users (username, salt, verifier) VALUES (?, ?, ?)", newUser.Username, newUser.Password, newUser.Password); err != nil {
+			http.Error(w, "unable to write to database", http.StatusInternalServerError)
+			return
+		}
+
+		// send feedback
+		w.WriteHeader(http.StatusCreated)
+	}
+}

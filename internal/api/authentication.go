@@ -1,7 +1,7 @@
 package api
 
 type LoginClientRequest struct {
-	Identity string
+	Username string
 	A        string
 }
 
@@ -11,7 +11,7 @@ type LoginServerResponse struct {
 }
 
 type ClientProofRequest struct {
-	Identity string
+	Username string
 	M1       string
 }
 
