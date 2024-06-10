@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/astrorick/seekret"
+	"github.com/astrorick/seekret/seekret"
 )
 
 func main() {
