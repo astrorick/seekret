@@ -63,3 +63,28 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 		w.WriteHeader(http.StatusCreated)
 	}
 }
+
+// this is the request the client makes to the server when initiating SRP authentication
+type LoginClientRequest struct {
+	Username string
+	A        string
+}
+
+// this is the server response to the first client request
+type LoginServerResponse struct {
+	SessionID string
+	Salt      string
+	B         string
+}
+
+// this is the request the client makes when providing it's SRP proof
+type ClientProofRequest struct {
+	SessionID string
+	M1        string
+}
+
+// this is the server response to the client's proof request
+type ServerProofResponse struct {
+	M2  string
+	JWT string
+}
