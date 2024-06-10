@@ -3,6 +3,7 @@ package seekret
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 /*
@@ -23,7 +24,7 @@ func (srv *Server) runPreliminaryChecks() error {
 		return errors.New("unsupported database type")
 	}
 
-	// check if tables exist
+	// check the 'stats' table
 	if err := statsRow.Scan(); errors.Is(err, sql.ErrNoRows) {
 		// generate empty 'stats' table
 		if _, err := srv.Database.Exec("CREATE TABLE stats (id INTEGER PRIMARY KEY, version TEXT NOT NULL)"); err != nil {
@@ -35,9 +36,30 @@ func (srv *Server) runPreliminaryChecks() error {
 			return err
 		}
 	} else {
-		// TODO: read database version and proceed to migration if necessary
+		// read database version from 'stats' table
+		var databaseVersionString string
+		srv.Database.QueryRow("SELECT version FROM stats").Scan(&databaseVersionString)
+
+		// parse to 'Version' object
+		databaseVersion, err := StringToVersion(databaseVersionString)
+		if err != nil {
+			return err
+		}
+
+		// check versions status
+		if srv.Version.IsOlderThan(databaseVersion) {
+			// database was created with a newer server version
+			return fmt.Errorf("outdated server version (%s) for the provided database (%s)", srv.Version.String(), databaseVersion.String())
+		}
+		if databaseVersion != srv.Version {
+			// TODO: proceed to migration
+			//return nil
+
+			fmt.Printf("Database updated from version %s to version %s\n", databaseVersion.String(), srv.Version.String())
+		}
 	}
 
+	// check the 'users' table
 	if err := usersRow.Scan(); errors.Is(err, sql.ErrNoRows) {
 		// generate empty 'users' table
 		if _, err := srv.Database.Exec("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT NOT NULL, salt TEXT NOT NULL, verifier TEXT NOT NULL)"); err != nil {

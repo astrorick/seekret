@@ -67,14 +67,16 @@ func (srv *Server) Start() error {
 	fmt.Printf("Local datetime is %s\n\n", time.Now().Format("2006-01-02 15:04:05"))
 
 	// run preliminary consistency checks on the server database
-	srv.runPreliminaryChecks()
+	if err := srv.runPreliminaryChecks(); err != nil {
+		return err
+	}
 
 	// enumerate users in database
 	var userCount int
 	if err := srv.Database.QueryRow("SELECT COUNT(*) FROM users").Scan(&userCount); err != nil {
 		return err
 	}
-	fmt.Printf("Database '%s' ok with %d registered users\n", srv.Config.DatabaseConnStr, userCount)
+	fmt.Printf("Found %d registered users\n", userCount)
 	defer srv.Database.Close()
 
 	// prepare routes for http server
