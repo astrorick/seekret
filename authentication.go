@@ -1,4 +1,4 @@
-package api
+package seekret
 
 type LoginClientRequest struct {
 	Username string
@@ -6,13 +6,14 @@ type LoginClientRequest struct {
 }
 
 type LoginServerResponse struct {
-	Salt string
-	B    string
+	SessionID string
+	Salt      string
+	B         string
 }
 
 type ClientProofRequest struct {
-	Username string
-	M1       string
+	SessionID string
+	M1        string
 }
 
 type ServerProofResponse struct {

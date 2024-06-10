@@ -1,4 +1,4 @@
-package version
+package seekret
 
 import "fmt"
 

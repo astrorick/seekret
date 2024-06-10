@@ -1,7 +1,6 @@
-package api
+package seekret
 
 import (
-	"database/sql"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -13,7 +12,7 @@ type CreateUserRequest struct {
 	Password string `json:"password"`
 }
 
-func CreateUserRequestHandler(db *sql.DB) http.HandlerFunc {
+func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// check for the correct method
 		if r.Method != http.MethodPost {
@@ -45,7 +44,7 @@ func CreateUserRequestHandler(db *sql.DB) http.HandlerFunc {
 
 		// check if specified username exists
 		var usernameCount int
-		if err := db.QueryRow("SELECT COUNT(*) FROM users WHERE username = ?", newUser.Username).Scan(&usernameCount); err != nil {
+		if err := srv.Database.QueryRow("SELECT COUNT(*) FROM users WHERE username = ?", newUser.Username).Scan(&usernameCount); err != nil {
 			http.Error(w, "unable to read database", http.StatusInternalServerError)
 			return
 		}
@@ -55,7 +54,7 @@ func CreateUserRequestHandler(db *sql.DB) http.HandlerFunc {
 		}
 
 		// add new user
-		if _, err := db.Exec("INSERT INTO users (username, salt, verifier) VALUES (?, ?, ?)", newUser.Username, newUser.Password, newUser.Password); err != nil {
+		if _, err := srv.Database.Exec("INSERT INTO users (username, salt, verifier) VALUES (?, ?, ?)", newUser.Username, newUser.Password, newUser.Password); err != nil {
 			http.Error(w, "unable to write to database", http.StatusInternalServerError)
 			return
 		}
