@@ -2,8 +2,10 @@ package seekret
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3" // sqlite3 driver
@@ -22,7 +24,16 @@ func NewServer(configPath string) (*Server, error) {
 		return nil, err
 	}
 
-	// init database connection
+	// when using a 'sqlite3' database, the database file must be created if it does not exist
+	if serverConfig.DatabaseType == "sqlite3" {
+		if _, err := os.Stat(serverConfig.DatabaseConnStr); errors.Is(err, os.ErrNotExist) {
+			if _, err := os.Create(serverConfig.DatabaseConnStr); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	// open database connection
 	serverDB, err := sql.Open(serverConfig.DatabaseType, serverConfig.DatabaseConnStr)
 	if err != nil {
 		return nil, err
@@ -55,12 +66,15 @@ func (srv *Server) Start() error {
 	fmt.Printf("Seekret Server v%s by Astrorick\n", srv.Version)
 	fmt.Printf("Local datetime is %s\n\n", time.Now().Format("2006-01-02 15:04:05"))
 
-	// enumerate users in database (also checks if database is ok)
+	// run preliminary consistency checks on the server database
+	srv.runPreliminaryChecks()
+
+	// enumerate users in database
 	var userCount int
 	if err := srv.Database.QueryRow("SELECT COUNT(*) FROM users").Scan(&userCount); err != nil {
 		return err
 	}
-	fmt.Printf("Database OK with %d registered users\n", userCount)
+	fmt.Printf("Database '%s' ok with %d registered users\n", srv.Config.DatabaseConnStr, userCount)
 	defer srv.Database.Close()
 
 	// prepare routes for http server

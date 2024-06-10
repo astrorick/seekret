@@ -1,7 +1,6 @@
 package seekret
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -9,19 +8,39 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// this is a server configuration object
 type ServerConfig struct {
-	ConfigPath      string `yaml:"configPath"`
+	ConfigPath string
+
+	// database parameters
 	DatabaseType    string `yaml:"databaseType"`
 	DatabaseConnStr string `yaml:"databaseConnStr"`
-	HTTPServerPort  uint16 `yaml:"httpServerPort"`
+
+	// http server parameters
+	HTTPServerPort uint16 `yaml:"httpServerPort"`
 }
 
-// printable config representation
+// printable server config representation
 func (sc *ServerConfig) String() string {
-	return fmt.Sprintf("%s: {\n\tDatabase Type: %s\n\tDatabase Connection String: \"%s\"\n\tHTTP Server Port: %d\n}", sc.ConfigPath, sc.DatabaseType, sc.DatabaseConnStr, sc.HTTPServerPort)
+	if sc.ConfigPath == "" {
+		return fmt.Sprintf("Default Config: {\n\tDatabase Type: %s\n\tDatabase Connection String: \"%s\"\n\tHTTP Server Port: %d\n}", sc.DatabaseType, sc.DatabaseConnStr, sc.HTTPServerPort)
+	} else {
+		return fmt.Sprintf("From '%s': {\n\tDatabase Type: %s\n\tDatabase Connection String: \"%s\"\n\tHTTP Server Port: %d\n}", sc.ConfigPath, sc.DatabaseType, sc.DatabaseConnStr, sc.HTTPServerPort)
+	}
 }
 
 func loadServerConfig(configPath string) (*ServerConfig, error) {
+	// see if user provided a config file
+	if configPath == "" {
+		// no config file provided
+		return &ServerConfig{
+			ConfigPath:      "",
+			DatabaseType:    "sqlite3",
+			DatabaseConnStr: "seekret.db",
+			HTTPServerPort:  3553,
+		}, nil
+	}
+
 	// try to read the provided config file
 	configFile, err := os.Open(configPath)
 	if err != nil {
@@ -44,12 +63,12 @@ func loadServerConfig(configPath string) (*ServerConfig, error) {
 	// check data integrity and assign default values
 	serverConfig.ConfigPath = configPath
 
-	if serverConfig.DatabaseConnStr == "" {
-		return nil, errors.New("missing required config field: databaseType")
+	if serverConfig.DatabaseType == "" {
+		serverConfig.DatabaseType = "sqlite3"
 	}
 
 	if serverConfig.DatabaseConnStr == "" {
-		return nil, errors.New("missing required config field: databaseConnStr")
+		serverConfig.DatabaseConnStr = "seekret.db"
 	}
 
 	if serverConfig.HTTPServerPort == 0 {

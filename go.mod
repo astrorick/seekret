@@ -1,6 +1,6 @@
 module github.com/astrorick/seekret
 
-go 1.21.5
+go 1.22.3
 
 require gopkg.in/yaml.v2 v2.4.0
 
