@@ -46,12 +46,12 @@ func (srv *Server) runPreliminaryChecks() error {
 			return err
 		}
 
-		// check versions status
+		// check versions mismatch
 		if srv.Version.IsOlderThan(databaseVersion) {
 			// database was created with a newer server version
 			return fmt.Errorf("outdated server version (%s) for the provided database (%s)", srv.Version.String(), databaseVersion.String())
 		}
-		if databaseVersion != srv.Version {
+		if *databaseVersion != *srv.Version {
 			// TODO: proceed to migration
 			//return nil
 
