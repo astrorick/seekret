@@ -12,7 +12,7 @@ type Version struct {
 	Patch uint64
 }
 
-// Parse takes a version string in the format "Major.Minor.Patch" and populates the [*Version] struct with the parsed values.
+// Parse takes a version string in the format "Major.Minor.Patch" and populates the [*Version] object with the parsed values.
 // It returns an error if the input string is not in the correct format or if the numeric values cannot be parsed.
 func Parse(s string) (*Version, error) {
 	// split input string
@@ -52,7 +52,7 @@ func (v *Version) String() string {
 // Compare compares the reference [*Version] object against another [*Version] object.
 // It returns -1 if the reference version is older, 0 if they are equal, and 1 if the reference version is newer.
 func (v1 *Version) Compare(v2 *Version) int8 {
-	// compare major version
+	// compare major versions
 	if v1.Major != v2.Major {
 		if v1.Major < v2.Major {
 			return -1
@@ -60,7 +60,7 @@ func (v1 *Version) Compare(v2 *Version) int8 {
 		return 1
 	}
 
-	// compare minor version
+	// compare minor versions
 	if v1.Minor != v2.Minor {
 		if v1.Minor < v2.Minor {
 			return -1
@@ -68,7 +68,7 @@ func (v1 *Version) Compare(v2 *Version) int8 {
 		return 1
 	}
 
-	// compare patch
+	// compare patch versions
 	if v1.Patch != v2.Patch {
 		if v1.Patch < v2.Patch {
 			return -1
