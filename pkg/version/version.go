@@ -26,7 +26,7 @@ func Parse(s string) (*Version, error) {
 	// parse version parts
 	major, err := strconv.ParseUint(parts[0], 10, 64)
 	if err != nil {
-		return nil, fmt.Errorf("invalid major version")
+		return nil, fmt.Errorf("invalid major version: %s", s)
 	}
 	minor, err := strconv.ParseUint(parts[1], 10, 64)
 	if err != nil {
