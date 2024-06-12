@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
+	"github.com/astrorick/seekret/pkg/version"
 )
 
 /*
@@ -41,13 +43,13 @@ func (srv *Server) runPreliminaryChecks() error {
 		srv.Database.QueryRow("SELECT version FROM stats").Scan(&databaseVersionString)
 
 		// parse to 'Version' object
-		databaseVersion, err := StringToVersion(databaseVersionString)
+		databaseVersion, err := version.Parse(databaseVersionString)
 		if err != nil {
 			return err
 		}
 
 		// check versions mismatch
-		if srv.Version.IsOlderThan(databaseVersion) {
+		if srv.Version.OlderThan(databaseVersion) {
 			// database was created with a newer server version
 			return fmt.Errorf("outdated server version (%s) for the provided database (%s)", srv.Version.String(), databaseVersion.String())
 		}

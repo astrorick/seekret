@@ -8,13 +8,14 @@ import (
 	"os"
 	"time"
 
+	"github.com/astrorick/seekret/pkg/version"
 	_ "github.com/mattn/go-sqlite3" // sqlite3 driver
 )
 
 type Server struct {
 	Config   *ServerConfig
 	Database *sql.DB
-	Version  *Version
+	Version  *version.Version
 }
 
 func NewServer(configPath string) (*Server, error) {
@@ -40,7 +41,7 @@ func NewServer(configPath string) (*Server, error) {
 	}
 
 	// define server version
-	serverVersion := &Version{
+	serverVersion := &version.Version{
 		Major: 0,
 		Minor: 10,
 		Patch: 0,
