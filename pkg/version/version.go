@@ -95,12 +95,12 @@ func (v1 *Version) Equals(v2 *Version) bool {
 	return v1.Compare(v2) == 0
 }
 
-// NewerThan returns true if the reference version is newer than the provided version, and false otherwise.
-func (v1 *Version) NewerThan(v2 *Version) bool {
-	return v1.Compare(v2) == 1
-}
-
 // NewerThanOrEquals returns true if the reference version is older than or equal to the provided version, and false otherwise.
 func (v1 *Version) NewerThanOrEquals(v2 *Version) bool {
 	return (v1.Compare(v2) == 1 || v1.Compare(v2) == 0)
+}
+
+// NewerThan returns true if the reference version is newer than the provided version, and false otherwise.
+func (v1 *Version) NewerThan(v2 *Version) bool {
+	return v1.Compare(v2) == 1
 }

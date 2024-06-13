@@ -6,7 +6,7 @@ import (
 	"github.com/astrorick/seekret/pkg/version"
 )
 
-// TestNew calls version.New() with different values and checks for valid returns
+// TestNew calls version.New() with different values and checks for valid returns.
 func TestNew(t *testing.T) {
 	t.Parallel()
 
@@ -157,7 +157,7 @@ func TestNew(t *testing.T) {
 	}
 }
 
-// TestString calls Version.String() with different values and checks for valid returns
+// TestString calls Version.String() with different values and checks for valid returns.
 func TestString(t *testing.T) {
 	t.Parallel()
 
@@ -226,7 +226,7 @@ func TestString(t *testing.T) {
 	}
 }
 
-// TODO docs
+// TestCompare calls Version.Compare() with different reference and comparison versions and checks for valid returns.
 func TestCompare(t *testing.T) {
 	t.Parallel()
 
@@ -382,7 +382,7 @@ func TestCompare(t *testing.T) {
 	}
 }
 
-// TODO docs
+// TestOlderThan calls Version.OlderThan() with different reference and comparison versions and checks for valid returns.
 func TestOlderThan(t *testing.T) {
 	t.Parallel()
 
@@ -454,7 +454,7 @@ func TestOlderThan(t *testing.T) {
 	}
 }
 
-// TODO docs
+// TestOlderThanOrEquals calls Version.OlderThanOrEquals() with different reference and comparison versions and checks for valid returns.
 func TestOlderThanOrEquals(t *testing.T) {
 	t.Parallel()
 
@@ -526,7 +526,7 @@ func TestOlderThanOrEquals(t *testing.T) {
 	}
 }
 
-// TODO docs
+// TestEquals calls Version.Equals() with different reference and comparison versions and checks for valid returns.
 func TestEquals(t *testing.T) {
 	t.Parallel()
 
@@ -598,79 +598,7 @@ func TestEquals(t *testing.T) {
 	}
 }
 
-// TODO docs
-func TestNewerThan(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name             string
-		referenceVersion *version.Version
-		compareVersion   *version.Version
-		expectedBool     bool
-	}{
-		{
-			// tests with referenceVersion < compareVersion
-			name: "TestNewerThan_1.5.5_2.5.2",
-			referenceVersion: &version.Version{
-				Major: 1,
-				Minor: 5,
-				Patch: 5,
-			},
-			compareVersion: &version.Version{
-				Major: 2,
-				Minor: 5,
-				Patch: 2,
-			},
-			expectedBool: false,
-		},
-
-		// tests with referenceVersion = compareVersion
-		{
-			name: "TestNewerThan_8.9.4_8.9.4",
-			referenceVersion: &version.Version{
-				Major: 8,
-				Minor: 9,
-				Patch: 4,
-			},
-			compareVersion: &version.Version{
-				Major: 8,
-				Minor: 9,
-				Patch: 4,
-			},
-			expectedBool: false,
-		},
-
-		// tests with referenceVersion > compareVersion
-		{
-			name: "TestNewerThan_9.5.1_8.4.3",
-			referenceVersion: &version.Version{
-				Major: 9,
-				Minor: 5,
-				Patch: 1,
-			},
-			compareVersion: &version.Version{
-				Major: 8,
-				Minor: 4,
-				Patch: 3,
-			},
-			expectedBool: true,
-		},
-	}
-
-	for _, test := range tests {
-		test := test
-
-		t.Run(test.name, func(t *testing.T) {
-			t.Parallel()
-
-			if res := test.referenceVersion.NewerThan(test.compareVersion); res != test.expectedBool {
-				t.Errorf("expected: %v, result: %v", test.expectedBool, res)
-			}
-		})
-	}
-}
-
-// TODO docs
+// TestNewerThanOrEquals calls Version.NewerThanOrEquals() with different reference and comparison versions and checks for valid returns.
 func TestNewerThanOrEquals(t *testing.T) {
 	t.Parallel()
 
@@ -736,6 +664,78 @@ func TestNewerThanOrEquals(t *testing.T) {
 			t.Parallel()
 
 			if res := test.referenceVersion.NewerThanOrEquals(test.compareVersion); res != test.expectedBool {
+				t.Errorf("expected: %v, result: %v", test.expectedBool, res)
+			}
+		})
+	}
+}
+
+// TestNewerThan calls Version.NewerThan() with different reference and comparison versions and checks for valid returns.
+func TestNewerThan(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name             string
+		referenceVersion *version.Version
+		compareVersion   *version.Version
+		expectedBool     bool
+	}{
+		{
+			// tests with referenceVersion < compareVersion
+			name: "TestNewerThan_1.5.5_2.5.2",
+			referenceVersion: &version.Version{
+				Major: 1,
+				Minor: 5,
+				Patch: 5,
+			},
+			compareVersion: &version.Version{
+				Major: 2,
+				Minor: 5,
+				Patch: 2,
+			},
+			expectedBool: false,
+		},
+
+		// tests with referenceVersion = compareVersion
+		{
+			name: "TestNewerThan_8.9.4_8.9.4",
+			referenceVersion: &version.Version{
+				Major: 8,
+				Minor: 9,
+				Patch: 4,
+			},
+			compareVersion: &version.Version{
+				Major: 8,
+				Minor: 9,
+				Patch: 4,
+			},
+			expectedBool: false,
+		},
+
+		// tests with referenceVersion > compareVersion
+		{
+			name: "TestNewerThan_9.5.1_8.4.3",
+			referenceVersion: &version.Version{
+				Major: 9,
+				Minor: 5,
+				Patch: 1,
+			},
+			compareVersion: &version.Version{
+				Major: 8,
+				Minor: 4,
+				Patch: 3,
+			},
+			expectedBool: true,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			if res := test.referenceVersion.NewerThan(test.compareVersion); res != test.expectedBool {
 				t.Errorf("expected: %v, result: %v", test.expectedBool, res)
 			}
 		})
