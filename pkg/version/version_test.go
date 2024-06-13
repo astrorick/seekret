@@ -6,8 +6,8 @@ import (
 	"github.com/astrorick/seekret/pkg/version"
 )
 
-// TestParse calls version.Parse() with different values and checks for valid returns
-func TestParse(t *testing.T) {
+// TestNew calls version.New() with different values and checks for valid returns
+func TestNew(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -18,7 +18,7 @@ func TestParse(t *testing.T) {
 	}{
 		// successfull tests
 		{
-			name:          "TestParse_0.0.0",
+			name:          "TestNew_0.0.0",
 			versionString: "0.0.0",
 			expectedVersion: &version.Version{
 				Major: 0,
@@ -28,7 +28,7 @@ func TestParse(t *testing.T) {
 			errorIsExpected: false,
 		},
 		{
-			name:          "TestParse_1.0.0",
+			name:          "TestNew_1.0.0",
 			versionString: "1.0.0",
 			expectedVersion: &version.Version{
 				Major: 1,
@@ -38,7 +38,7 @@ func TestParse(t *testing.T) {
 			errorIsExpected: false,
 		},
 		{
-			name:          "TestParse_0.2.0",
+			name:          "TestNew_0.2.0",
 			versionString: "0.2.0",
 			expectedVersion: &version.Version{
 				Major: 0,
@@ -48,7 +48,7 @@ func TestParse(t *testing.T) {
 			errorIsExpected: false,
 		},
 		{
-			name:          "TestParse_0.0.3",
+			name:          "TestNew_0.0.3",
 			versionString: "0.0.3",
 			expectedVersion: &version.Version{
 				Major: 0,
@@ -58,7 +58,7 @@ func TestParse(t *testing.T) {
 			errorIsExpected: false,
 		},
 		{
-			name:          "TestParse_1.2.3",
+			name:          "TestNew_1.2.3",
 			versionString: "1.2.3",
 			expectedVersion: &version.Version{
 				Major: 1,
@@ -70,25 +70,25 @@ func TestParse(t *testing.T) {
 
 		// characters in input string
 		{
-			name:            "TestParse_a.2.3",
+			name:            "TestNew_a.2.3",
 			versionString:   "a.2.3",
 			expectedVersion: nil,
 			errorIsExpected: true,
 		},
 		{
-			name:            "TestParse_1.b.3",
+			name:            "TestNew_1.b.3",
 			versionString:   "1.b.3",
 			expectedVersion: nil,
 			errorIsExpected: true,
 		},
 		{
-			name:            "TestParse_1.2.c",
+			name:            "TestNew_1.2.c",
 			versionString:   "1.2.c",
 			expectedVersion: nil,
 			errorIsExpected: true,
 		},
 		{
-			name:            "TestParse_a.b.c",
+			name:            "TestNew_a.b.c",
 			versionString:   "a.b.c",
 			expectedVersion: nil,
 			errorIsExpected: true,
@@ -96,19 +96,19 @@ func TestParse(t *testing.T) {
 
 		// negative numbers
 		{
-			name:            "TestParse_-1.0.0",
+			name:            "TestNew_-1.0.0",
 			versionString:   "-1.0.0",
 			expectedVersion: nil,
 			errorIsExpected: true,
 		},
 		{
-			name:            "TestParse_0.-1.0",
+			name:            "TestNew_0.-1.0",
 			versionString:   "0.-1.0",
 			expectedVersion: nil,
 			errorIsExpected: true,
 		},
 		{
-			name:            "TestParse_0.0.-1",
+			name:            "TestNew_0.0.-1",
 			versionString:   "0.0.-1",
 			expectedVersion: nil,
 			errorIsExpected: true,
@@ -116,19 +116,19 @@ func TestParse(t *testing.T) {
 
 		// garbage strings
 		{
-			name:            "TestParse_...",
+			name:            "TestNew_...",
 			versionString:   "...",
 			expectedVersion: nil,
 			errorIsExpected: true,
 		},
 		{
-			name:            "TestParse_1a.2b.3c",
+			name:            "TestNew_1a.2b.3c",
 			versionString:   "1a.2b.3c",
 			expectedVersion: nil,
 			errorIsExpected: true,
 		},
 		{
-			name:            "TestParse_hello",
+			name:            "TestNew_hello",
 			versionString:   "hello",
 			expectedVersion: nil,
 			errorIsExpected: true,
@@ -141,10 +141,10 @@ func TestParse(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			res, err := version.Parse(test.versionString)
+			res, err := version.New(test.versionString)
 
 			if err != nil {
-				if (err != nil) != test.errorIsExpected {
+				if !test.errorIsExpected {
 					t.Errorf("expected: %v, result: %v", test.errorIsExpected, err != nil)
 				}
 				return
@@ -455,6 +455,78 @@ func TestOlderThan(t *testing.T) {
 }
 
 // TODO docs
+func TestOlderThanOrEquals(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name             string
+		referenceVersion *version.Version
+		compareVersion   *version.Version
+		expectedBool     bool
+	}{
+		{
+			// tests with referenceVersion < compareVersion
+			name: "TestOlderThanOrEquals_1.5.5_2.5.2",
+			referenceVersion: &version.Version{
+				Major: 1,
+				Minor: 5,
+				Patch: 5,
+			},
+			compareVersion: &version.Version{
+				Major: 2,
+				Minor: 5,
+				Patch: 2,
+			},
+			expectedBool: true,
+		},
+
+		// tests with referenceVersion = compareVersion
+		{
+			name: "TestOlderThanOrEquals_8.9.4_8.9.4",
+			referenceVersion: &version.Version{
+				Major: 8,
+				Minor: 9,
+				Patch: 4,
+			},
+			compareVersion: &version.Version{
+				Major: 8,
+				Minor: 9,
+				Patch: 4,
+			},
+			expectedBool: true,
+		},
+
+		// tests with referenceVersion > compareVersion
+		{
+			name: "TestOlderThanOrEquals_9.5.1_8.4.3",
+			referenceVersion: &version.Version{
+				Major: 9,
+				Minor: 5,
+				Patch: 1,
+			},
+			compareVersion: &version.Version{
+				Major: 8,
+				Minor: 4,
+				Patch: 3,
+			},
+			expectedBool: false,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			if res := test.referenceVersion.OlderThanOrEquals(test.compareVersion); res != test.expectedBool {
+				t.Errorf("expected: %v, result: %v", test.expectedBool, res)
+			}
+		})
+	}
+}
+
+// TODO docs
 func TestEquals(t *testing.T) {
 	t.Parallel()
 
@@ -538,7 +610,7 @@ func TestNewerThan(t *testing.T) {
 	}{
 		{
 			// tests with referenceVersion < compareVersion
-			name: "TestEquals_1.5.5_2.5.2",
+			name: "TestNewerThan_1.5.5_2.5.2",
 			referenceVersion: &version.Version{
 				Major: 1,
 				Minor: 5,
@@ -554,7 +626,7 @@ func TestNewerThan(t *testing.T) {
 
 		// tests with referenceVersion = compareVersion
 		{
-			name: "TestEquals_8.9.4_8.9.4",
+			name: "TestNewerThan_8.9.4_8.9.4",
 			referenceVersion: &version.Version{
 				Major: 8,
 				Minor: 9,
@@ -570,7 +642,7 @@ func TestNewerThan(t *testing.T) {
 
 		// tests with referenceVersion > compareVersion
 		{
-			name: "TestEquals_9.5.1_8.4.3",
+			name: "TestNewerThan_9.5.1_8.4.3",
 			referenceVersion: &version.Version{
 				Major: 9,
 				Minor: 5,
@@ -592,6 +664,78 @@ func TestNewerThan(t *testing.T) {
 			t.Parallel()
 
 			if res := test.referenceVersion.NewerThan(test.compareVersion); res != test.expectedBool {
+				t.Errorf("expected: %v, result: %v", test.expectedBool, res)
+			}
+		})
+	}
+}
+
+// TODO docs
+func TestNewerThanOrEquals(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name             string
+		referenceVersion *version.Version
+		compareVersion   *version.Version
+		expectedBool     bool
+	}{
+		{
+			// tests with referenceVersion < compareVersion
+			name: "TestNewerThanOrEquals_1.5.5_2.5.2",
+			referenceVersion: &version.Version{
+				Major: 1,
+				Minor: 5,
+				Patch: 5,
+			},
+			compareVersion: &version.Version{
+				Major: 2,
+				Minor: 5,
+				Patch: 2,
+			},
+			expectedBool: false,
+		},
+
+		// tests with referenceVersion = compareVersion
+		{
+			name: "TestNewerThanOrEquals_8.9.4_8.9.4",
+			referenceVersion: &version.Version{
+				Major: 8,
+				Minor: 9,
+				Patch: 4,
+			},
+			compareVersion: &version.Version{
+				Major: 8,
+				Minor: 9,
+				Patch: 4,
+			},
+			expectedBool: true,
+		},
+
+		// tests with referenceVersion > compareVersion
+		{
+			name: "TestNewerThanOrEquals_9.5.1_8.4.3",
+			referenceVersion: &version.Version{
+				Major: 9,
+				Minor: 5,
+				Patch: 1,
+			},
+			compareVersion: &version.Version{
+				Major: 8,
+				Minor: 4,
+				Patch: 3,
+			},
+			expectedBool: true,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			if res := test.referenceVersion.NewerThanOrEquals(test.compareVersion); res != test.expectedBool {
 				t.Errorf("expected: %v, result: %v", test.expectedBool, res)
 			}
 		})

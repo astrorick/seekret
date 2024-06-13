@@ -12,9 +12,9 @@ type Version struct {
 	Patch uint64
 }
 
-// Parse takes a version string in the format "Major.Minor.Patch" and populates the [*Version] object with the parsed values.
+// New takes a version string in the format "Major.Minor.Patch" and populates the [*Version] object with the parsed values.
 // It returns an error if the input string is not in the correct format or if the numeric values cannot be parsed.
-func Parse(s string) (*Version, error) {
+func New(s string) (*Version, error) {
 	// split input string
 	parts := strings.Split(s, ".")
 
@@ -85,6 +85,11 @@ func (v1 *Version) OlderThan(v2 *Version) bool {
 	return v1.Compare(v2) == -1
 }
 
+// OlderThanOrEquals returns true if the reference version is older than or equal to the provided version, and false otherwise.
+func (v1 *Version) OlderThanOrEquals(v2 *Version) bool {
+	return (v1.Compare(v2) == -1 || v1.Compare(v2) == 0)
+}
+
 // Equals returns true if the reference version is equal to the provided version, and false otherwise.
 func (v1 *Version) Equals(v2 *Version) bool {
 	return v1.Compare(v2) == 0
@@ -93,4 +98,9 @@ func (v1 *Version) Equals(v2 *Version) bool {
 // NewerThan returns true if the reference version is newer than the provided version, and false otherwise.
 func (v1 *Version) NewerThan(v2 *Version) bool {
 	return v1.Compare(v2) == 1
+}
+
+// NewerThanOrEquals returns true if the reference version is older than or equal to the provided version, and false otherwise.
+func (v1 *Version) NewerThanOrEquals(v2 *Version) bool {
+	return (v1.Compare(v2) == 1 || v1.Compare(v2) == 0)
 }

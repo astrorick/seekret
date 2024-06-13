@@ -43,7 +43,7 @@ func (srv *Server) runPreliminaryChecks() error {
 		srv.Database.QueryRow("SELECT version FROM stats").Scan(&databaseVersionString)
 
 		// parse to 'Version' object
-		databaseVersion, err := version.Parse(databaseVersionString)
+		databaseVersion, err := version.New(databaseVersionString)
 		if err != nil {
 			return err
 		}
