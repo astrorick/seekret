@@ -99,6 +99,20 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 			return
 		}
 
+		/*
+				Confirm that album inventory is enough for the order.
+			    var enough bool
+			    if err = tx.QueryRowContext(ctx, "SELECT (quantity >= ?) from album where id = ?",
+			        quantity, albumID).Scan(&enough); err != nil {
+			        if err == sql.ErrNoRows {
+			            return fail(fmt.Errorf("no such album"))
+			        }
+			        return fail(err)
+			    }
+			    if !enough {
+			        return fail(fmt.Errorf("not enough inventory"))
+			    }
+		*/
 		// check if specified username exists
 		var checkUsername int
 		if err := srv.Database.QueryRow("SELECT COUNT(*) FROM users WHERE username = ?", newUser.Username).Scan(&checkUsername); err != nil {
