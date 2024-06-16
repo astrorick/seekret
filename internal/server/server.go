@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -18,7 +19,7 @@ type Server struct {
 	Database *sql.DB
 }
 
-func NewServer(configPath string) (*Server, error) {
+func New(configPath string) (*Server, error) {
 	// define server version
 	serverVersion := &version.Version{
 		Major: 0,
@@ -73,13 +74,13 @@ func (srv *Server) Start() error {
 	fmt.Printf("Local datetime is %s\n\n", time.Now().Format("2006-01-02 15:04:05"))
 
 	if srv.Config.FilePath != "" {
-		fmt.Printf("Using server config at '%s' with parameters:\n\tDatabase Type: %s\n\tDatabase Connecion String: %s\n\tHTTP Server Port: %d", srv.Config.FilePath, srv.Config.DatabaseType, srv.Config.DatabaseConnStr, srv.Config.HTTPServerPort)
+		fmt.Printf("Using server config at '%s' with parameters:\n\tDatabase Type: %s\n\tDatabase Connecion String: %s\n\tHTTP Server Port: %d\n", srv.Config.FilePath, srv.Config.DatabaseType, srv.Config.DatabaseConnStr, srv.Config.HTTPServerPort)
 	} else {
-		fmt.Printf("Using the default server config:\n\tDatabase Type: %s\n\tDatabase Connecion String: %s\n\tHTTP Server Port: %d", srv.Config.DatabaseType, srv.Config.DatabaseConnStr, srv.Config.HTTPServerPort)
+		fmt.Printf("Using the default server config:\n\tDatabase Type: %s\n\tDatabase Connecion String: %s\n\tHTTP Server Port: %d\n", srv.Config.DatabaseType, srv.Config.DatabaseConnStr, srv.Config.HTTPServerPort)
 	}
 
 	// enumerate users in database
-	/*var userCount int
+	var userCount int
 	if err := srv.Database.QueryRow("SELECT COUNT(*) FROM users").Scan(&userCount); err != nil {
 		return err
 	}
@@ -93,7 +94,7 @@ func (srv *Server) Start() error {
 	fmt.Printf("HTTP server listening on port %d\n", srv.Config.HTTPServerPort)
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", srv.Config.HTTPServerPort), nil); err != nil {
 		return err
-	}*/
+	}
 
 	// exit
 	return nil

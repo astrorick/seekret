@@ -28,7 +28,7 @@ func main() {
 	}
 
 	// init server with specified settings
-	seekretServer, err := server.NewServer(configFilePath)
+	seekretServer, err := server.New(configFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,31 +1,43 @@
-package seekret
+package srp
 
 import (
 	"crypto"
 	"math/big"
 )
 
-type SRP struct {
-	hashFcn *crypto.Hash
+type SRPParams struct {
+	NLenghtBits uint64
+	HashFcn     crypto.Hash
+	G           *big.Int
+	N           *big.Int
+}
+
+func New(nLengthBits uint64, hashFcn crypto.Hash) (*SRPParams, error) {
+	var srpParams *SRPParams
+
+	srpParams.N = knownPrimes[nLengthBits]
+	srpParams.HashFcn = hashFcn
+
+	return srpParams, nil
 }
 
 type SRPClient struct {
-	SRP      *SRP
-	Username string
-	Password string
-	a        *big.Int
-	A        *big.Int
+	SRPParams *SRPParams
+	Username  string
+	Password  string
+	a         *big.Int
+	A         *big.Int
 }
 
-func NewClient(srp *SRP, username string, password string, salt []byte) (*SRPClient, error) {
+func NewClient(srpParams *SRPParams, username string, password string, salt []byte) (*SRPClient, error) {
 	// TODO: compute 'a' and 'A'
 
 	return &SRPClient{
-		SRP:      srp,
-		Username: username,
-		Password: password,
-		a:        &big.Int{},
-		A:        &big.Int{},
+		SRPParams: srpParams,
+		Username:  username,
+		Password:  password,
+		a:         &big.Int{},
+		A:         &big.Int{},
 	}, nil
 }
 
