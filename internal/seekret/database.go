@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/astrorick/seekret/internal/server"
 	"github.com/astrorick/seekret/pkg/version"
 )
 
@@ -12,7 +13,7 @@ import (
 This function should be executed as a part of the server initialization procedure.
 It is meant to run preliminary consistency checks on the provided database in order to initialize missing tables and set some default values.
 */
-func (srv *Server) runPreliminaryChecks() error {
+func (srv *server.Server) runPreliminaryChecks() error {
 	// checks
 	var statsRow *sql.Row
 	var usersRow *sql.Row
@@ -53,7 +54,7 @@ func (srv *Server) runPreliminaryChecks() error {
 			// database was created with a newer server version
 			return fmt.Errorf("outdated server version (%s) for the provided database (%s)", srv.Version.String(), databaseVersion.String())
 		}
-		if *databaseVersion != *srv.Version {
+		if srv.Version.NewerThan(databaseVersion) {
 			// TODO: proceed to migration
 			//return nil
 

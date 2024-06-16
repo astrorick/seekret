@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/astrorick/seekret/internal/seekret"
+	"github.com/astrorick/seekret/internal/server"
 )
 
 func main() {
@@ -28,7 +28,7 @@ func main() {
 	}
 
 	// init server with specified settings
-	seekretServer, err := seekret.NewServer(configFilePath)
+	seekretServer, err := server.NewServer(configFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}

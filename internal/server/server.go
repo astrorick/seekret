@@ -1,26 +1,33 @@
-package seekret
+package server
 
 import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"net/http"
 	"os"
 	"time"
 
+	"github.com/astrorick/seekret/internal/config"
 	"github.com/astrorick/seekret/pkg/version"
 	_ "github.com/mattn/go-sqlite3" // sqlite3 driver
 )
 
 type Server struct {
-	Config   *ServerConfig
-	Database *sql.DB
 	Version  *version.Version
+	Config   *config.ServerConfig
+	Database *sql.DB
 }
 
 func NewServer(configPath string) (*Server, error) {
+	// define server version
+	serverVersion := &version.Version{
+		Major: 0,
+		Minor: 10,
+		Patch: 0,
+	}
+
 	// read config file
-	serverConfig, err := loadServerConfig(configPath)
+	serverConfig, err := config.NewServerConfig(configPath)
 	if err != nil {
 		return nil, err
 	}
@@ -38,13 +45,6 @@ func NewServer(configPath string) (*Server, error) {
 	serverDB, err := sql.Open(serverConfig.DatabaseType, serverConfig.DatabaseConnStr)
 	if err != nil {
 		return nil, err
-	}
-
-	// define server version
-	serverVersion := &version.Version{
-		Major: 0,
-		Minor: 10,
-		Patch: 0,
 	}
 
 	return &Server{
@@ -67,8 +67,14 @@ func (srv *Server) Start() error {
 	fmt.Printf("Seekret Server v%s by Astrorick\n", srv.Version)
 	fmt.Printf("Local datetime is %s\n\n", time.Now().Format("2006-01-02 15:04:05"))
 
+	if srv.Config.FilePath != "" {
+		fmt.Printf("Using server config at '%s' with parameters:\n\tDatabase Type: %s\n\tDatabase Connecion String: %s\n\tHTTP Server Port: %d", srv.Config.FilePath, srv.Config.DatabaseType, srv.Config.DatabaseConnStr, srv.Config.HTTPServerPort)
+	} else {
+		fmt.Printf("Using the default server config:\n\tDatabase Type: %s\n\tDatabase Connecion String: %s\n\tHTTP Server Port: %d", srv.Config.DatabaseType, srv.Config.DatabaseConnStr, srv.Config.HTTPServerPort)
+	}
+
 	// run preliminary consistency checks on the server database
-	if err := srv.runPreliminaryChecks(); err != nil {
+	/*if err := srv.runPreliminaryChecks(); err != nil {
 		return err
 	}
 
@@ -87,7 +93,7 @@ func (srv *Server) Start() error {
 	fmt.Printf("HTTP server listening on port %d\n", srv.Config.HTTPServerPort)
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", srv.Config.HTTPServerPort), nil); err != nil {
 		return err
-	}
+	}*/
 
 	// exit
 	return nil
