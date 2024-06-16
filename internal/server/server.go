@@ -47,6 +47,11 @@ func NewServer(configPath string) (*Server, error) {
 		return nil, err
 	}
 
+	// run preliminary consistency checks on the server database
+	/*if err := srv.runPreliminaryChecks(); err != nil {
+		return err
+	}*/
+
 	return &Server{
 		Config:   serverConfig,
 		Database: serverDB,
@@ -73,13 +78,8 @@ func (srv *Server) Start() error {
 		fmt.Printf("Using the default server config:\n\tDatabase Type: %s\n\tDatabase Connecion String: %s\n\tHTTP Server Port: %d", srv.Config.DatabaseType, srv.Config.DatabaseConnStr, srv.Config.HTTPServerPort)
 	}
 
-	// run preliminary consistency checks on the server database
-	/*if err := srv.runPreliminaryChecks(); err != nil {
-		return err
-	}
-
 	// enumerate users in database
-	var userCount int
+	/*var userCount int
 	if err := srv.Database.QueryRow("SELECT COUNT(*) FROM users").Scan(&userCount); err != nil {
 		return err
 	}

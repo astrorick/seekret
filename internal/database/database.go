@@ -1,4 +1,4 @@
-package seekret
+package database
 
 import (
 	"database/sql"
@@ -13,7 +13,7 @@ import (
 This function should be executed as a part of the server initialization procedure.
 It is meant to run preliminary consistency checks on the provided database in order to initialize missing tables and set some default values.
 */
-func (srv *server.Server) runPreliminaryChecks() error {
+func (srv *server.Server) RunPreliminaryChecks() error {
 	// checks
 	var statsRow *sql.Row
 	var usersRow *sql.Row

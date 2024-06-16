@@ -1,4 +1,4 @@
-package seekret
+package api
 
 import (
 	"encoding/json"
