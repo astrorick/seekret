@@ -1,15 +1,13 @@
 package main
 
 import (
-	"database/sql"
-	"errors"
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/astrorick/seekret/internal/config"
+	"github.com/astrorick/seekret/internal/database"
 	"github.com/astrorick/seekret/internal/server"
 	"github.com/astrorick/seekret/pkg/version"
 )
@@ -75,35 +73,28 @@ func main() {
 			serverConfig.HTTPServerPort)
 	}
 
-	// when using a 'sqlite3' database, the database file must be created if it does not exist
-	if serverConfig.DatabaseType == "sqlite3" {
-		if _, err := os.Stat(serverConfig.DatabaseConnStr); errors.Is(err, os.ErrNotExist) {
-			if _, err := os.Create(serverConfig.DatabaseConnStr); err != nil {
-				log.Fatal(err)
-			}
-		}
-	}
-
-	// open database connection
-	serverDB, err := sql.Open(serverConfig.DatabaseType, serverConfig.DatabaseConnStr)
+	// open connection to database
+	serverDatabase, err := database.Open(serverConfig.DatabaseType, serverConfig.DatabaseConnStr)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// TODO: run db consistency checks
+	defer func() {
+		if err := serverDatabase.Close(); err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	// enumerate users in database
-	var userCount uint64
-	if err := serverDB.QueryRow("SELECT COUNT(*) FROM users").Scan(&userCount); err != nil {
+	userCount, err := serverDatabase.UserCount()
+	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("Database contains %d registered users\n", userCount)
-	defer serverDB.Close()
 
 	// start http server with provided settings
 	srv := &server.Server{
 		Config:   serverConfig,
-		Database: serverDB,
+		Database: serverDatabase,
 	}
 	fmt.Printf("Starting HTTP server on port %d\n", srv.Config.HTTPServerPort)
 	if err := srv.Start(); err != nil {

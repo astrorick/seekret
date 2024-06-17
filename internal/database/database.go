@@ -1,5 +1,56 @@
 package database
 
+import (
+	"database/sql"
+	"errors"
+	"log"
+	"os"
+)
+
+type Database struct {
+	SQL *sql.DB
+}
+
+func Open(databaseType string, databaseConnStr string) (*Database, error) {
+	// when using a 'sqlite3' database, the database file must be created if it does not exist
+	if databaseType == "sqlite3" {
+		if _, err := os.Stat(databaseConnStr); errors.Is(err, os.ErrNotExist) {
+			if _, err := os.Create(databaseConnStr); err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+
+	// open connection to database
+	database, err := sql.Open(databaseType, databaseConnStr)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: run consistency checks
+
+	return &Database{
+		SQL: database,
+	}, nil
+}
+
+func (db *Database) Close() error {
+	if err := db.SQL.Close(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *Database) UserCount() (uint64, error) {
+	var userCount uint64
+	if err := db.SQL.QueryRow("SELECT COUNT(*) FROM users").Scan(&userCount); err != nil {
+		return 0, err
+	}
+
+	return userCount, nil
+}
+
 /*
 This function should be executed as a part of the server initialization procedure.
 It is meant to run preliminary consistency checks on the provided database in order to initialize missing tables and set some default values.

@@ -1,17 +1,17 @@
 package server
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 
 	"github.com/astrorick/seekret/internal/config"
+	"github.com/astrorick/seekret/internal/database"
 	_ "github.com/mattn/go-sqlite3" // sqlite3 driver
 )
 
 type Server struct {
 	Config   *config.ServerConfig
-	Database *sql.DB
+	Database *database.Database
 }
 
 func (srv *Server) Start() error {

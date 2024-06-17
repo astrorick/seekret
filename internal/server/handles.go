@@ -66,7 +66,7 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 
 		// check if specified username exists
 		var usernamePresent bool
-		if err := srv.Database.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", newUser.Username).Scan(&usernamePresent); err != nil {
+		if err := srv.Database.SQL.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", newUser.Username).Scan(&usernamePresent); err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(api.OutcomeResponse{
@@ -87,7 +87,7 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 
 		// add new user
 		// TODO: SRP salt and verifier
-		if _, err := srv.Database.Exec("INSERT INTO users (username, salt, verifier) VALUES (?, ?, ?)", newUser.Username, newUser.Password, newUser.Password); err != nil {
+		if _, err := srv.Database.SQL.Exec("INSERT INTO users (username, salt, verifier) VALUES (?, ?, ?)", newUser.Username, newUser.Password, newUser.Password); err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(api.OutcomeResponse{
