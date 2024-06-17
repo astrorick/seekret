@@ -1,19 +1,10 @@
 package database
 
-import (
-	"database/sql"
-	"errors"
-	"fmt"
-
-	"github.com/astrorick/seekret/internal/server"
-	"github.com/astrorick/seekret/pkg/version"
-)
-
 /*
 This function should be executed as a part of the server initialization procedure.
 It is meant to run preliminary consistency checks on the provided database in order to initialize missing tables and set some default values.
 */
-func (srv *server.Server) RunPreliminaryChecks() error {
+/*func (srv *server.Server) RunPreliminaryChecks() error {
 	// checks
 	var statsRow *sql.Row
 	var usersRow *sql.Row
@@ -71,4 +62,4 @@ func (srv *server.Server) RunPreliminaryChecks() error {
 	}
 
 	return nil
-}
+}*/
