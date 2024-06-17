@@ -14,6 +14,7 @@ type Server struct {
 	Database *database.Database
 }
 
+// Start starts the http server with the provided configuration.
 func (srv *Server) Start() error {
 	// prepare routes for http server
 	http.HandleFunc("/api/create-user", srv.CreateUserRequestHandler())

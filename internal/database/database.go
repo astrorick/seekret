@@ -3,15 +3,18 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"os"
+
+	"github.com/astrorick/seekret/pkg/version"
 )
 
 type Database struct {
 	SQL *sql.DB
 }
 
-func Open(databaseType string, databaseConnStr string) (*Database, error) {
+func Open(databaseType string, databaseConnStr string, appVersion *version.Version) (*Database, error) {
 	// when using a 'sqlite3' database, the database file must be created if it does not exist
 	if databaseType == "sqlite3" {
 		if _, err := os.Stat(databaseConnStr); errors.Is(err, os.ErrNotExist) {
@@ -22,15 +25,66 @@ func Open(databaseType string, databaseConnStr string) (*Database, error) {
 	}
 
 	// open connection to database
-	database, err := sql.Open(databaseType, databaseConnStr)
+	sqlDB, err := sql.Open(databaseType, databaseConnStr)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: run consistency checks
+	// assess database status
+	var statsRow *sql.Row
+	var usersRow *sql.Row
+	switch databaseType {
+	case "sqlite3":
+		statsRow = sqlDB.QueryRow("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'stats'")
+		usersRow = sqlDB.QueryRow("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users'")
+	default:
+		return nil, errors.New("unsupported database type")
+	}
+
+	// check the 'stats' table
+	if err := statsRow.Scan(); errors.Is(err, sql.ErrNoRows) {
+		// generate empty 'stats' table
+		if _, err := sqlDB.Exec("CREATE TABLE stats (id INTEGER PRIMARY KEY, version TEXT NOT NULL)"); err != nil {
+			return nil, err
+		}
+
+		// write default values
+		if _, err := sqlDB.Exec("INSERT INTO stats (version) VALUES (?)", appVersion); err != nil {
+			return nil, err
+		}
+	} else {
+		// read database version from 'stats' table
+		var databaseVersionString string
+		sqlDB.QueryRow("SELECT version FROM stats").Scan(&databaseVersionString)
+
+		// parse to 'Version' object
+		databaseVersion, err := version.New(databaseVersionString)
+		if err != nil {
+			return nil, err
+		}
+
+		// check versions mismatch
+		if appVersion.OlderThan(databaseVersion) {
+			// database was created with a newer server version
+			return nil, fmt.Errorf("outdated server version (%s) for the provided database (%s)", appVersion, databaseVersion)
+		}
+		if appVersion.NewerThan(databaseVersion) {
+			// TODO: proceed to migration
+
+			fmt.Printf("Database updated from version %s to version %s\n", databaseVersion, appVersion)
+		}
+	}
+
+	// check the 'users' table
+	if err := usersRow.Scan(); errors.Is(err, sql.ErrNoRows) {
+		// generate empty 'users' table
+		if _, err := sqlDB.Exec("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT NOT NULL, salt TEXT NOT NULL, verifier TEXT NOT NULL)"); err != nil {
+			return nil, err
+		}
+	}
 
 	return &Database{
-		SQL: database,
+		SQL: sqlDB,
 	}, nil
 }
 
@@ -51,66 +105,11 @@ func (db *Database) UserCount() (uint64, error) {
 	return userCount, nil
 }
 
-/*
-This function should be executed as a part of the server initialization procedure.
-It is meant to run preliminary consistency checks on the provided database in order to initialize missing tables and set some default values.
-*/
-/*func (srv *server.Server) RunPreliminaryChecks() error {
-	// checks
-	var statsRow *sql.Row
-	var usersRow *sql.Row
-
-	// assess database status
-	switch srv.Config.DatabaseType {
-	case "sqlite3":
-		statsRow = srv.Database.QueryRow("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'stats'")
-		usersRow = srv.Database.QueryRow("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users'")
-	default:
-		return errors.New("unsupported database type")
+func (db *Database) UserExists(username string) (bool, error) {
+	var userExists bool
+	if err := db.SQL.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", username).Scan(&userExists); err != nil {
+		return false, err
 	}
 
-	// check the 'stats' table
-	if err := statsRow.Scan(); errors.Is(err, sql.ErrNoRows) {
-		// generate empty 'stats' table
-		if _, err := srv.Database.Exec("CREATE TABLE stats (id INTEGER PRIMARY KEY, version TEXT NOT NULL)"); err != nil {
-			return err
-		}
-
-		// write default values
-		if _, err := srv.Database.Exec("INSERT INTO stats (version) VALUES (?)", srv.Version.String()); err != nil {
-			return err
-		}
-	} else {
-		// read database version from 'stats' table
-		var databaseVersionString string
-		srv.Database.QueryRow("SELECT version FROM stats").Scan(&databaseVersionString)
-
-		// parse to 'Version' object
-		databaseVersion, err := version.New(databaseVersionString)
-		if err != nil {
-			return err
-		}
-
-		// check versions mismatch
-		if srv.Version.OlderThan(databaseVersion) {
-			// database was created with a newer server version
-			return fmt.Errorf("outdated server version (%s) for the provided database (%s)", srv.Version.String(), databaseVersion.String())
-		}
-		if srv.Version.NewerThan(databaseVersion) {
-			// TODO: proceed to migration
-			//return nil
-
-			fmt.Printf("Database updated from version %s to version %s\n", databaseVersion.String(), srv.Version.String())
-		}
-	}
-
-	// check the 'users' table
-	if err := usersRow.Scan(); errors.Is(err, sql.ErrNoRows) {
-		// generate empty 'users' table
-		if _, err := srv.Database.Exec("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT NOT NULL, salt TEXT NOT NULL, verifier TEXT NOT NULL)"); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}*/
+	return userExists, nil
+}

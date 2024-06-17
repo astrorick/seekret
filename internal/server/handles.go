@@ -65,17 +65,16 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 		}
 
 		// check if specified username exists
-		var usernamePresent bool
-		if err := srv.Database.SQL.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", newUser.Username).Scan(&usernamePresent); err != nil {
+		userExists, err := srv.Database.UserExists(newUser.Username)
+		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(api.OutcomeResponse{
 				Outcome: "failed",
 				Reason:  "internal database read error",
 			})
-			return
 		}
-		if usernamePresent {
+		if userExists {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusConflict)
 			json.NewEncoder(w).Encode(api.OutcomeResponse{

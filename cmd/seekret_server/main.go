@@ -74,7 +74,7 @@ func main() {
 	}
 
 	// open connection to database
-	serverDatabase, err := database.Open(serverConfig.DatabaseType, serverConfig.DatabaseConnStr)
+	serverDatabase, err := database.Open(serverConfig.DatabaseType, serverConfig.DatabaseConnStr, appVersion)
 	if err != nil {
 		log.Fatal(err)
 	}
