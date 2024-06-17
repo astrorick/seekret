@@ -20,8 +20,8 @@ func main() {
 	)
 
 	// bind and parse command line flags
-	flag.StringVar(&configFilePath, "config", "", "Configuration file path.")
-	flag.BoolVar(&displayHelp, "help", false, "Display help.")
+	flag.StringVar(&configFilePath, "config", "", "Server configuration file path.")
+	flag.BoolVar(&displayHelp, "help", false, "Display this help message.")
 	flag.Parse()
 
 	// display help and exit if help flag is set
@@ -91,7 +91,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Database contains %d registered users\n", userCount)
+	fmt.Printf("Database contains %d registered user(s)\n", userCount)
 
 	// start http server with provided settings
 	srv := &server.Server{

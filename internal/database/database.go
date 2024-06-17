@@ -53,6 +53,7 @@ func Open(databaseType string, databaseConnStr string, appVersion *version.Versi
 		}
 	} else {
 		// read database version from 'stats' table
+		// TODO: read entire row instead of string
 		var databaseVersionString string
 		sqlDB.QueryRow("SELECT version FROM stats").Scan(&databaseVersionString)
 
@@ -93,40 +94,6 @@ func Open(databaseType string, databaseConnStr string, appVersion *version.Versi
 
 func (db *Database) Close() error {
 	if err := db.SQL.Close(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (db *Database) UserCount() (uint64, error) {
-	var userCount uint64
-	if err := db.SQL.QueryRow("SELECT COUNT(*) FROM users").Scan(&userCount); err != nil {
-		return 0, err
-	}
-
-	return userCount, nil
-}
-
-func (db *Database) UserExists(username string) (bool, error) {
-	var userExists bool
-	if err := db.SQL.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", username).Scan(&userExists); err != nil {
-		return false, err
-	}
-
-	return userExists, nil
-}
-
-func (db *Database) CreateUser(username string, salt string, verifier string) error {
-	if _, err := db.SQL.Exec("INSERT INTO users (username, salt, verifier) VALUES (?, ?, ?)", username, salt, verifier); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (db *Database) DeleteUser(username string) error {
-	if _, err := db.SQL.Exec("DELETE FROM users WHERE username = ?", username); err != nil {
 		return err
 	}
 
