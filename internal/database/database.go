@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/astrorick/seekret/pkg/version"
@@ -15,11 +14,11 @@ type Database struct {
 }
 
 func Open(databaseType string, databaseConnStr string, appVersion *version.Version) (*Database, error) {
-	// when using a 'sqlite3' database, the database file must be created if it does not exist
+	// when using an 'sqlite3' database, the database file must be created if it does not exist
 	if databaseType == "sqlite3" {
 		if _, err := os.Stat(databaseConnStr); errors.Is(err, os.ErrNotExist) {
 			if _, err := os.Create(databaseConnStr); err != nil {
-				log.Fatal(err)
+				return nil, err
 			}
 		}
 	}
@@ -57,7 +56,7 @@ func Open(databaseType string, databaseConnStr string, appVersion *version.Versi
 		var databaseVersionString string
 		sqlDB.QueryRow("SELECT version FROM stats").Scan(&databaseVersionString)
 
-		// parse to 'Version' object
+		// parse to Version object
 		databaseVersion, err := version.New(databaseVersionString)
 		if err != nil {
 			return nil, err
@@ -69,9 +68,13 @@ func Open(databaseType string, databaseConnStr string, appVersion *version.Versi
 			return nil, fmt.Errorf("outdated server version (%s) for the provided database (%s)", appVersion, databaseVersion)
 		}
 		if appVersion.NewerThan(databaseVersion) {
-			// TODO: proceed to migration
+			/*
+				TODO
+				We should proceed with migrations at this point. For now, if versions do not match the app simply stops.
+			*/
 
-			fmt.Printf("Database updated from version %s to version %s\n", databaseVersion, appVersion)
+			//fmt.Printf("Database updated from version %s to version %s\n", databaseVersion, appVersion)
+			return nil, fmt.Errorf("migrations not implemented yet (server version: %s, database version: %s)", appVersion, databaseVersion)
 		}
 	}
 
@@ -112,4 +115,20 @@ func (db *Database) UserExists(username string) (bool, error) {
 	}
 
 	return userExists, nil
+}
+
+func (db *Database) CreateUser(username string, salt string, verifier string) error {
+	if _, err := db.SQL.Exec("INSERT INTO users (username, salt, verifier) VALUES (?, ?, ?)", username, salt, verifier); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *Database) DeleteUser(username string) error {
+	if _, err := db.SQL.Exec("DELETE FROM users WHERE username = ?", username); err != nil {
+		return err
+	}
+
+	return nil
 }

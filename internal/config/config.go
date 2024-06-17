@@ -9,6 +9,7 @@ import (
 )
 
 type ServerConfig struct {
+	// config parameters
 	FilePath string
 
 	// database parameters
@@ -26,7 +27,7 @@ var DefaultServerConfig = &ServerConfig{
 	HTTPServerPort:  3553,
 }
 
-// NewServerConfig tries to open, read and parse the provided file in a 'ServerConfig' object.
+// NewServerConfig tries to read and parse the provided file in a ServerConfig object.
 // An error is returned if the provided file does not exist or if the file is not accessible.
 func NewServerConfig(filePath string) (*ServerConfig, error) {
 	// open specified config file

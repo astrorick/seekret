@@ -21,8 +21,7 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 			return
 		}
 
-		// parse request body
-		var newUser api.CreateUserRequest
+		// read request body
 		reqBody, err := io.ReadAll(r.Body)
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
@@ -33,6 +32,9 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 			})
 			return
 		}
+
+		// parse request body
+		var newUser api.CreateUserRequest
 		if err := json.Unmarshal(reqBody, &newUser); err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
@@ -86,7 +88,7 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 
 		// add new user
 		// TODO: SRP salt and verifier
-		if _, err := srv.Database.SQL.Exec("INSERT INTO users (username, salt, verifier) VALUES (?, ?, ?)", newUser.Username, newUser.Password, newUser.Password); err != nil {
+		if err := srv.Database.CreateUser(newUser.Username, newUser.Password, newUser.Password); err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(api.OutcomeResponse{
