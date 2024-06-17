@@ -75,6 +75,7 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 				Outcome: "failed",
 				Reason:  "internal database read error",
 			})
+			return
 		}
 		if userExists {
 			w.Header().Set("Content-Type", "application/json")

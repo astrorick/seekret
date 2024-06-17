@@ -48,7 +48,7 @@ func Open(databaseType string, databaseConnStr string, appVersion *version.Versi
 		}
 
 		// write default values
-		if _, err := sqlDB.Exec("INSERT INTO stats (version) VALUES (?)", appVersion); err != nil {
+		if _, err := sqlDB.Exec("INSERT INTO stats (version) VALUES (?)", appVersion.String()); err != nil {
 			return nil, err
 		}
 	} else {
@@ -65,7 +65,7 @@ func Open(databaseType string, databaseConnStr string, appVersion *version.Versi
 		// check versions mismatch
 		if appVersion.OlderThan(databaseVersion) {
 			// database was created with a newer server version
-			return nil, fmt.Errorf("outdated server version (%s) for the provided database (%s)", appVersion, databaseVersion)
+			return nil, fmt.Errorf("outdated server version (%s) for the provided database (%s)", appVersion.String(), databaseVersion.String())
 		}
 		if appVersion.NewerThan(databaseVersion) {
 			/*
@@ -74,7 +74,7 @@ func Open(databaseType string, databaseConnStr string, appVersion *version.Versi
 			*/
 
 			//fmt.Printf("Database updated from version %s to version %s\n", databaseVersion, appVersion)
-			return nil, fmt.Errorf("migrations not implemented yet (server version: %s, database version: %s)", appVersion, databaseVersion)
+			return nil, fmt.Errorf("migrations not implemented yet (server version: %s, database version: %s)", appVersion.String(), databaseVersion.String())
 		}
 	}
 

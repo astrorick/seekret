@@ -33,7 +33,7 @@ func main() {
 	// app version
 	appVersion := &version.Version{
 		Major: 0,
-		Minor: 20,
+		Minor: 21,
 		Patch: 0,
 	}
 
@@ -46,12 +46,14 @@ func main() {
 
 	// print banner and welcome string
 	fmt.Println(appBanner)
-	fmt.Printf("Seekret Server v%s by Astrorick\n", appVersion)
+	fmt.Printf("Seekret Server v%s by Astrorick\n", appVersion.String())
 	fmt.Printf("Local datetime is %s\n\n", time.Now().Format("2006-01-02 15:04:05"))
 
-	// read/load config file
-	var serverConfig *config.ServerConfig
-	var err error
+	// load config file
+	var (
+		serverConfig *config.ServerConfig
+		err          error
+	)
 	if configFilePath != "" {
 		// build config from config file
 		serverConfig, err = config.NewServerConfig(configFilePath)
