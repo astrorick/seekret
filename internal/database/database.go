@@ -29,6 +29,11 @@ func Open(databaseType string, databaseConnStr string, appVersion *version.Versi
 		return nil, err
 	}
 
+	// new db object
+	db := &Database{
+		SQL: sqlDB,
+	}
+
 	// assess database status
 	var statsRow *sql.Row
 	var usersRow *sql.Row
@@ -52,30 +57,24 @@ func Open(databaseType string, databaseConnStr string, appVersion *version.Versi
 			return nil, err
 		}
 	} else {
-		// read database version from 'stats' table
-		// TODO: read entire row instead of string
-		var databaseVersionString string
-		sqlDB.QueryRow("SELECT version FROM stats").Scan(&databaseVersionString)
-
-		// parse to Version object
-		databaseVersion, err := version.New(databaseVersionString)
+		// read first row of 'stats' table
+		stat, err := db.GetStat()
 		if err != nil {
 			return nil, err
 		}
 
 		// check versions mismatch
-		if appVersion.OlderThan(databaseVersion) {
+		if appVersion.OlderThan(stat.Version) {
 			// database was created with a newer server version
-			return nil, fmt.Errorf("outdated server version (%s) for the provided database (%s)", appVersion.String(), databaseVersion.String())
+			return nil, fmt.Errorf("outdated server version (%s) for the provided database (%s)", appVersion.String(), stat.Version.String())
 		}
-		if appVersion.NewerThan(databaseVersion) {
+		if appVersion.NewerThan(stat.Version) {
 			/*
 				TODO
 				We should proceed with migrations at this point. For now, if versions do not match the app simply stops.
 			*/
 
-			//fmt.Printf("Database updated from version %s to version %s\n", databaseVersion, appVersion)
-			return nil, fmt.Errorf("migrations not implemented yet (server version: %s, database version: %s)", appVersion.String(), databaseVersion.String())
+			return nil, fmt.Errorf("migrations not implemented yet (server version: %s, database version: %s)", appVersion.String(), stat.Version.String())
 		}
 	}
 
@@ -87,9 +86,7 @@ func Open(databaseType string, databaseConnStr string, appVersion *version.Versi
 		}
 	}
 
-	return &Database{
-		SQL: sqlDB,
-	}, nil
+	return db, nil
 }
 
 func (db *Database) Close() error {
