@@ -2,44 +2,49 @@ package srp
 
 import (
 	"crypto"
+	"crypto/rand"
+	"crypto/sha256"
+	"fmt"
+	"hash"
 	"math/big"
 )
 
 type SRPParams struct {
-	NLenghtBits uint64
-	HashFcn     crypto.Hash
-	G           *big.Int
-	N           *big.Int
+	SaltSize uint8       // size in bytes
+	HashFcn  crypto.Hash // hash function
+	N        *big.Int    // selected safe prime
+	G        *big.Int    // generator modulo N
 }
 
-func New(nLengthBits uint64, hashFcn crypto.Hash) (*SRPParams, error) {
-	var srpParams *SRPParams
+// NewSalt generates a new salt of length specified by the SRP parameters.
+func (p *SRPParams) NewSalt() ([]byte, error) {
+	salt := make([]byte, p.SaltSize)
+	if _, err := rand.Read(salt); err != nil {
+		return nil, err
+	}
 
-	srpParams.N = knownPrimes[nLengthBits]
-	srpParams.HashFcn = hashFcn
-
-	return srpParams, nil
+	return salt, nil
 }
 
-type SRPClient struct {
-	SRPParams *SRPParams
-	Username  string
-	Password  string
-	a         *big.Int
-	A         *big.Int
-}
+// GetVerifier returns the verifier from the specified arguments and using the hashing function provided in the parameters.
+// This function should only be used during the creation process of a new user and not for authentication.
+func (p *SRPParams) GetVerifier(salt []byte, username string, password string) ([]byte, error) {
+	var h1, h2 hash.Hash
 
-func NewClient(srpParams *SRPParams, username string, password string, salt []byte) (*SRPClient, error) {
-	// TODO: compute 'a' and 'A'
+	// define hashing function
+	switch p.HashFcn {
+	case crypto.SHA256:
+		h1 = sha256.New()
+		h2 = sha256.New()
+	default:
+		return nil, fmt.Errorf("unsupported hash function")
+	}
 
-	return &SRPClient{
-		SRPParams: srpParams,
-		Username:  username,
-		Password:  password,
-		a:         &big.Int{},
-		A:         &big.Int{},
-	}, nil
-}
+	// compute hash of [username][":"][password] as h1
+	h1.Write([]byte(username + ":" + password))
 
-type SRPServer struct {
+	// compute hash of [salt][h1] as h2
+	h2.Write(append(salt, h1.Sum(nil)...))
+
+	return h2.Sum(nil), nil
 }

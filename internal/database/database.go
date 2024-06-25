@@ -81,7 +81,7 @@ func Open(databaseType string, databaseConnStr string, appVersion *version.Versi
 	// check the 'users' table
 	if err := usersRow.Scan(); errors.Is(err, sql.ErrNoRows) {
 		// generate empty 'users' table
-		if _, err := sqlDB.Exec("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT NOT NULL, salt TEXT NOT NULL, verifier TEXT NOT NULL)"); err != nil {
+		if _, err := sqlDB.Exec("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT NOT NULL, salt BLOB NOT NULL, verifier BLOB NOT NULL)"); err != nil {
 			return nil, err
 		}
 	}

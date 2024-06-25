@@ -6,13 +6,15 @@ import (
 
 	"github.com/astrorick/seekret/internal/config"
 	"github.com/astrorick/seekret/internal/database"
+	"github.com/astrorick/seekret/pkg/srp"
 	_ "github.com/mattn/go-sqlite3" // sqlite3 driver
 )
 
 type Server struct {
-	Config   *config.ServerConfig
-	Database *database.Database
-	JWTKey   []byte
+	Config    *config.ServerConfig
+	Database  *database.Database
+	SRPParams *srp.SRPParams
+	JWTKey    []byte
 }
 
 // Start starts the http server with the provided configuration.

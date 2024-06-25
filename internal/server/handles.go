@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/astrorick/seekret/internal/api"
-	"github.com/golang-jwt/jwt/v4"
 )
 
+// implement username checks here
 func isUsernameValid(username string) bool {
 	// TODO: add strict username characters checks
 	if len(username) < 4 || len(username) > 32 {
@@ -19,6 +19,7 @@ func isUsernameValid(username string) bool {
 	return true
 }
 
+// implement password checks here
 func isPasswordValid(password string) bool {
 	// TODO: add strict password characters checks
 	if len(password) < 8 || len(password) > 64 {
@@ -28,22 +29,7 @@ func isPasswordValid(password string) bool {
 	return true
 }
 
-func (srv *Server) newSignedJWT(username string, duration time.Duration) (string, error) {
-	// create JWT token
-	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
-		"username": username,
-		"exp":      time.Now().Add(duration).Unix(),
-	})
-
-	// sign the token with the server super secret key
-	signedJWTString, err := jwtToken.SignedString(srv.JWTKey)
-	if err != nil {
-		return "", err
-	}
-
-	return signedJWTString, nil
-}
-
+// TODO: doc
 func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// check for the correct method
@@ -122,9 +108,30 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 			return
 		}
 
+		// prepare srp for salt and verifier generation
+		salt, err := srv.SRPParams.NewSalt()
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(api.ServerErrorResponse{
+				Outcome: "failed",
+				Reason:  "internal srp salt generation error",
+			})
+			return
+		}
+		verifier, err := srv.SRPParams.GetVerifier(salt, newUser.Username, newUser.Password)
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(api.ServerErrorResponse{
+				Outcome: "failed",
+				Reason:  "internal srp verifier generation error",
+			})
+			return
+		}
+
 		// add new user
-		// TODO: SRP salt and verifier
-		if err := srv.Database.CreateUser(newUser.Username, newUser.Password, newUser.Password); err != nil {
+		if err := srv.Database.CreateUser(newUser.Username, salt, verifier); err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(api.ServerErrorResponse{
@@ -134,8 +141,8 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 			return
 		}
 
-		// generate a JWT for the newly created user
-		signedJWTString, err := srv.newSignedJWT(newUser.Username, 24*time.Hour)
+		// generate a jwt for the newly created user
+		signedJWTString, err := srv.newSignedJWTString(newUser.Username, 24*time.Hour)
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)

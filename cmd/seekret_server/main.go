@@ -1,14 +1,17 @@
 package main
 
 import (
+	"crypto"
 	"flag"
 	"fmt"
 	"log"
+	"math/big"
 	"time"
 
 	"github.com/astrorick/seekret/internal/config"
 	"github.com/astrorick/seekret/internal/database"
 	"github.com/astrorick/seekret/internal/server"
+	"github.com/astrorick/seekret/pkg/srp"
 	"github.com/astrorick/seekret/pkg/version"
 )
 
@@ -97,7 +100,13 @@ func main() {
 	srv := &server.Server{
 		Config:   serverConfig,
 		Database: serverDatabase,
-		JWTKey:   []byte("TCata4OWeZcxap3AaIfk3cMXNy13npt4"), // TODO: store this somewhere in the fs
+		SRPParams: &srp.SRPParams{
+			SaltSize: 32,
+			HashFcn:  crypto.SHA256,
+			N:        &big.Int{},
+			G:        &big.Int{},
+		},
+		JWTKey: []byte("TCata4OWeZcxap3AaIfk3cMXNy13npt4"), // TODO: store this somewhere in the fs
 	}
 	fmt.Printf("Starting HTTP server on port %d\n", srv.Config.HTTPServerPort)
 	if err := srv.Start(); err != nil {

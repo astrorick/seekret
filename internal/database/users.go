@@ -25,7 +25,7 @@ func (db *Database) UserExists(username string) (bool, error) {
 	return userExists, nil
 }
 
-func (db *Database) CreateUser(username string, salt string, verifier string) error {
+func (db *Database) CreateUser(username string, salt []byte, verifier []byte) error {
 	if _, err := db.SQL.Exec("INSERT INTO users (username, salt, verifier) VALUES (?, ?, ?)", username, salt, verifier); err != nil {
 		return err
 	}
