@@ -12,6 +12,7 @@ import (
 type Server struct {
 	Config   *config.ServerConfig
 	Database *database.Database
+	JWTKey   []byte
 }
 
 // Start starts the http server with the provided configuration.

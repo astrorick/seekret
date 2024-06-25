@@ -97,6 +97,7 @@ func main() {
 	srv := &server.Server{
 		Config:   serverConfig,
 		Database: serverDatabase,
+		JWTKey:   []byte("TCata4OWeZcxap3AaIfk3cMXNy13npt4"), // TODO: store this somewhere in the fs
 	}
 	fmt.Printf("Starting HTTP server on port %d\n", srv.Config.HTTPServerPort)
 	if err := srv.Start(); err != nil {
