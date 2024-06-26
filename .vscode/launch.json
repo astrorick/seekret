@@ -9,7 +9,7 @@
             "program": "${workspaceFolder}/cmd/seekret_server",
             "env": {},
             "args": [
-                "-config", "../../configs/default.yaml",
+                "-c", "../../configs/server.yaml",
             ],
             "showLog": true
         },

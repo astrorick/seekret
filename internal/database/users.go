@@ -3,8 +3,8 @@ package database
 type User struct {
 	ID       uint64 `db:"id"`
 	Username string `db:"username"`
-	Salt     string `db:"salt"`
-	Verifier string `db:"verifier"`
+	Salt     []byte `db:"salt"`
+	Verifier []byte `db:"verifier"`
 }
 
 func (db *Database) UserCount() (uint64, error) {
@@ -16,7 +16,7 @@ func (db *Database) UserCount() (uint64, error) {
 	return userCount, nil
 }
 
-func (db *Database) UserExists(username string) (bool, error) {
+/*func (db *Database) UserExists(username string) (bool, error) {
 	var userExists bool
 	if err := db.SQL.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)", username).Scan(&userExists); err != nil {
 		return false, err
@@ -48,4 +48,4 @@ func (db *Database) DeleteUser(username string) error {
 	}
 
 	return nil
-}
+}*/

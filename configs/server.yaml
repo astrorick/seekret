@@ -1,0 +1,15 @@
+---
+# database parameters
+databaseType: sqlite3 # defaults to 'sqlite3'
+databaseConnStr: ../../data/seekret.db # defaults to 'seekret.db'
+
+# http server parameters
+httpServerPort: 3553 # defaults to '3553'
+
+# srp parameters
+srpSaltSize: 32 # defaults to '32'
+srpHashFcn: SHA512 # defaults to SHA512
+
+# jwt parameters
+jwtSigningFcn: SHA512 # defaults to SHA512
+jwtSigningKey: TCata4OWeZcxap3AaIfk3cMXNy13npt4 # treat this like a very important password

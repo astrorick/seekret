@@ -1,3 +1,3 @@
 # Configs
 
-This folder holds server configuration files.
+This folder holds configuration files.

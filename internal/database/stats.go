@@ -23,8 +23,8 @@ func (db *Database) GetStat() (*Stat, error) {
 	if err != nil {
 		return nil, err
 	}
+	stat.Version = version
 
 	// return
-	stat.Version = version
 	return &stat, nil
 }

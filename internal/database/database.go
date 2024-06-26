@@ -10,7 +10,9 @@ import (
 )
 
 type Database struct {
-	SQL *sql.DB
+	Type    string
+	ConnStr string
+	SQL     *sql.DB
 }
 
 func Open(databaseType string, databaseConnStr string, appVersion *version.Version) (*Database, error) {
@@ -31,12 +33,16 @@ func Open(databaseType string, databaseConnStr string, appVersion *version.Versi
 
 	// new db object
 	db := &Database{
-		SQL: sqlDB,
+		Type:    databaseType,
+		ConnStr: databaseConnStr,
+		SQL:     sqlDB,
 	}
 
 	// assess database status
-	var statsRow *sql.Row
-	var usersRow *sql.Row
+	var (
+		statsRow *sql.Row
+		usersRow *sql.Row
+	)
 	switch databaseType {
 	case "sqlite3":
 		statsRow = sqlDB.QueryRow("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'stats'")

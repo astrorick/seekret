@@ -6,14 +6,13 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"hash"
-	"math/big"
 )
 
 type SRPParams struct {
 	SaltSize uint8       // size in bytes
 	HashFcn  crypto.Hash // hash function
-	N        *big.Int    // selected safe prime
-	G        *big.Int    // generator modulo N
+	/*N        *big.Int    // selected safe prime
+	G        *big.Int    // generator modulo N*/
 }
 
 // NewSalt generates a new salt of length specified by the SRP parameters.

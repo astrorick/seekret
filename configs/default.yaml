@@ -1,7 +1,0 @@
----
-# database parameters
-databaseType: sqlite3 # defaults to 'sqlite3'
-databaseConnStr: ../../data/seekret.db # defaults to 'seekret.db'
-
-# http server parameters
-httpServerPort: 3553 # defaults to 3553

@@ -1,6 +1,6 @@
 package server
 
-import (
+/*import (
 	"encoding/json"
 	"io"
 	"net/http"
@@ -161,3 +161,4 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 		})
 	}
 }
+*/
