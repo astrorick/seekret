@@ -1,16 +1,15 @@
 package server
 
-/*import (
+import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"time"
 
 	"github.com/astrorick/seekret/internal/api"
 )
 
 // implement username checks here
-func isUsernameValid(username string) bool {
+func isValidUsername(username string) bool {
 	// TODO: add strict username characters checks
 	if len(username) < 4 || len(username) > 32 {
 		return false
@@ -20,7 +19,7 @@ func isUsernameValid(username string) bool {
 }
 
 // implement password checks here
-func isPasswordValid(password string) bool {
+func isValidPassword(password string) bool {
 	// TODO: add strict password characters checks
 	if len(password) < 8 || len(password) > 64 {
 		return false
@@ -29,7 +28,9 @@ func isPasswordValid(password string) bool {
 	return true
 }
 
-// TODO: doc
+// CreateUserRequestHandler handles client request for the creation of a new user in the database.
+// An error response is returned to the client if the request body cannot be parsed, if the username/password is not valid or if the user already exists.
+// If the request is successful, a new JWT will be returned in the response body to be used by the client.
 func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// check for the correct method
@@ -56,8 +57,8 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 		}
 
 		// parse request body
-		var newUser api.CreateUserRequest
-		if err := json.Unmarshal(reqBody, &newUser); err != nil {
+		var newUserRequest api.CreateUserRequest
+		if err := json.Unmarshal(reqBody, &newUserRequest); err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(api.ServerErrorResponse{
@@ -68,7 +69,7 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 		}
 
 		// check parsed data
-		if !isUsernameValid(newUser.Username) {
+		if !isValidUsername(newUserRequest.Username) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(api.ServerErrorResponse{
@@ -77,7 +78,7 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 			})
 			return
 		}
-		if !isPasswordValid(newUser.Password) {
+		if !isValidPassword(newUserRequest.Password) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(api.ServerErrorResponse{
@@ -88,7 +89,7 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 		}
 
 		// check if specified username exists
-		userExists, err := srv.Database.UserExists(newUser.Username)
+		userExists, err := srv.Database.UserExists(newUserRequest.Username)
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
@@ -109,7 +110,7 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 		}
 
 		// prepare srp for salt and verifier generation
-		salt, err := srv.SRPParams.NewSalt()
+		newUserSalt, err := srv.SRPParams.NewSalt()
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
@@ -119,7 +120,7 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 			})
 			return
 		}
-		verifier, err := srv.SRPParams.GetVerifier(salt, newUser.Username, newUser.Password)
+		newUserVerifier, err := srv.SRPParams.GetVerifier(newUserSalt, newUserRequest.Username, newUserRequest.Password)
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
@@ -131,7 +132,7 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 		}
 
 		// add new user
-		if err := srv.Database.CreateUser(newUser.Username, salt, verifier); err != nil {
+		if err := srv.Database.CreateUser(newUserRequest.Username, newUserSalt, newUserVerifier); err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(api.ServerErrorResponse{
@@ -142,7 +143,7 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 		}
 
 		// generate a jwt for the newly created user
-		signedJWTString, err := srv.newSignedJWTString(newUser.Username, 24*time.Hour)
+		/*signedJWTString, err := srv.newSignedJWTString(newUser.Username, 24*time.Hour)
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
@@ -151,14 +152,13 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 				Reason:  "internal JWT generator error",
 			})
 			return
-		}
+		}*/
 
 		// send feedback
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(api.CreateUserResponse{
+		/*json.NewEncoder(w).Encode(api.CreateUserResponse{
 			JWT: signedJWTString,
-		})
+		})*/
 	}
 }
-*/

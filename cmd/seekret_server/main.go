@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto"
 	"flag"
 	"fmt"
 	"log"
@@ -9,15 +10,17 @@ import (
 
 	"github.com/astrorick/seekret/internal/database"
 	"github.com/astrorick/seekret/internal/server"
+	"github.com/astrorick/seekret/pkg/srp"
 	"github.com/astrorick/seekret/pkg/version"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type SeekretServer struct {
-	Banner  string           // seekret server banner
-	Config  *Config          // server config
-	Version *version.Version // app version
+	Banner    string           // seekret server banner
+	Config    *Config          // server config
+	SRPParams *srp.SRPParams   // srp params
+	Version   *version.Version // app version
 }
 
 func (ss *SeekretServer) Start(configFilePath string) error {
@@ -75,8 +78,9 @@ func (ss *SeekretServer) Start(configFilePath string) error {
 
 	// use the provided (or the default) server config to generate the server object
 	srv := &server.Server{
-		HTTPPort: ss.Config.HTTPServerPort,
-		Database: serverDatabase,
+		HTTPPort:  ss.Config.HTTPServerPort,
+		Database:  serverDatabase,
+		SRPParams: ss.SRPParams,
 	}
 
 	// start the http server
@@ -118,14 +122,10 @@ func main() {
 
 			// http server parameters
 			HTTPServerPort: 3553,
-
-			// srp parameters
-			SRPSaltSize: 32,
-			SRPHashFcn:  "SHA512",
-
-			// jwt parameters
-			JWTSigningFcn: "SHA512",
-			JWTSigningKey: "TCata4OWeZcxap3AaIfk3cMXNy13npt4",
+		},
+		SRPParams: &srp.SRPParams{
+			SaltSize: 32,
+			HashFcn:  crypto.MD4,
 		},
 		Version: &version.Version{
 			Major: 0,

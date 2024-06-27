@@ -14,14 +14,6 @@ type Config struct {
 
 	// http server parameters
 	HTTPServerPort uint16 `yaml:"httpServerPort"`
-
-	// srp parameters
-	SRPSaltSize uint64 `yaml:"srpSaltSize"`
-	SRPHashFcn  string `yaml:"srpHashFcn"`
-
-	// jwt parameters
-	JWTSigningFcn string `yaml:"jwtSigningFcn"`
-	JWTSigningKey string `yaml:"jwtSigningKey"`
 }
 
 // NewServerConfig tries to read and parse the provided file in a ServerConfig object.
