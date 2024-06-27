@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/astrorick/seekret/internal/database"
+	"github.com/astrorick/seekret/internal/server"
 	"github.com/astrorick/seekret/pkg/version"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -46,11 +47,11 @@ func (ss *SeekretServer) Start(configFilePath string) error {
 				fieldDefault.Set(fieldParsed)
 			}
 		}
+
+		fmt.Println("done!")
 	} else {
 		fmt.Println("Using the default server config.")
 	}
-
-	fmt.Println("done!")
 
 	// open connection to database
 	fmt.Printf("Connecting to %s database '%s'...", ss.Config.DatabaseType, ss.Config.DatabaseConnStr)
@@ -70,35 +71,22 @@ func (ss *SeekretServer) Start(configFilePath string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Database contains %d registered user(s).\n", userCount)
+	fmt.Printf("Database contains %d registered user(s)\n", userCount)
 
-	fmt.Printf("Starting HTTP server on port %d...", ss.Config.HTTPServerPort)
-	if err := ss.HTTPServer.Start(); err != nil {
+	// use the provided (or the default) server config to generate the server object
+	srv := &server.Server{
+		HTTPPort: ss.Config.HTTPServerPort,
+		Database: serverDatabase,
+	}
+
+	// start the http server
+	fmt.Printf("Starting HTTP server, listening on port %d", ss.Config.HTTPServerPort)
+	if err := srv.Start(); err != nil {
 		return err
 	}
 
 	return nil
 }
-
-/*func main() {
-
-	// start http server with provided settings
-	srv := &server.Server{
-		Config:   serverConfig,
-		Database: serverDatabase,
-		SRPParams: &srp.SRPParams{
-			SaltSize: 32,
-			HashFcn:  crypto.SHA256,
-			N:        &big.Int{},
-			G:        &big.Int{},
-		},
-		JWTKey: []byte("TCata4OWeZcxap3AaIfk3cMXNy13npt4"), // TODO: store this somewhere in the fs
-	}
-	fmt.Printf("Starting HTTP server on port %d\n", srv.Config.HTTPServerPort)
-	if err := srv.Start(); err != nil {
-		log.Fatal(err)
-	}
-}*/
 
 func main() {
 	// bind and parse command line flags
@@ -150,6 +138,4 @@ func main() {
 	if err := seekretServer.Start(configFilePath); err != nil {
 		log.Fatal(err)
 	}
-
-	return
 }

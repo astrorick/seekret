@@ -9,10 +9,14 @@ import (
 )
 
 type SRPParams struct {
-	SaltSize uint8       // size in bytes
+	SaltSize uint64      // size in bytes
 	HashFcn  crypto.Hash // hash function
 	/*N        *big.Int    // selected safe prime
 	G        *big.Int    // generator modulo N*/
+}
+
+func NewParams(salSize uint64, hashFcn crypto.Hash) (*SRPParams, error) {
+	return nil, nil
 }
 
 // NewSalt generates a new salt of length specified by the SRP parameters.
