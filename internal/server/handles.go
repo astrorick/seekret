@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/astrorick/seekret/internal/api"
+
+	gojwt "github.com/golang-jwt/jwt/v4"
 )
 
 // implement username checks here
@@ -143,7 +146,10 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 		}
 
 		// generate a jwt for the newly created user
-		/*signedJWTString, err := srv.newSignedJWTString(newUser.Username, 24*time.Hour)
+		signedJWTString, err := srv.JWTParams.NewSignedJWTString(gojwt.MapClaims{
+			"username": newUserRequest.Username,
+			"exp":      time.Now().Add(24 * time.Hour).Unix(),
+		})
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
@@ -152,13 +158,13 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 				Reason:  "internal JWT generator error",
 			})
 			return
-		}*/
+		}
 
 		// send feedback
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		/*json.NewEncoder(w).Encode(api.CreateUserResponse{
+		json.NewEncoder(w).Encode(api.CreateUserResponse{
 			JWT: signedJWTString,
-		})*/
+		})
 	}
 }

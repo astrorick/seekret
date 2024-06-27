@@ -10,8 +10,11 @@ import (
 
 	"github.com/astrorick/seekret/internal/database"
 	"github.com/astrorick/seekret/internal/server"
+	"github.com/astrorick/seekret/pkg/jwt"
 	"github.com/astrorick/seekret/pkg/srp"
 	"github.com/astrorick/seekret/pkg/version"
+
+	gojwt "github.com/golang-jwt/jwt/v4"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -19,7 +22,8 @@ import (
 type SeekretServer struct {
 	Banner    string           // seekret server banner
 	Config    *Config          // server config
-	SRPParams *srp.SRPParams   // srp params
+	SRPParams *srp.Params      // srp params
+	JWTParams *jwt.Params      // jwt params
 	Version   *version.Version // app version
 }
 
@@ -81,6 +85,7 @@ func (ss *SeekretServer) Start(configFilePath string) error {
 		HTTPPort:  ss.Config.HTTPServerPort,
 		Database:  serverDatabase,
 		SRPParams: ss.SRPParams,
+		JWTParams: ss.JWTParams,
 	}
 
 	// start the http server
@@ -123,9 +128,13 @@ func main() {
 			// http server parameters
 			HTTPServerPort: 3553,
 		},
-		SRPParams: &srp.SRPParams{
+		SRPParams: &srp.Params{
 			SaltSize: 32,
-			HashFcn:  crypto.MD4,
+			HashFcn:  crypto.SHA512,
+		},
+		JWTParams: &jwt.Params{
+			SigningFcn: gojwt.SigningMethodHS512,
+			Key:        []byte("M8qZ3V3nmAvxppeRcQrGvcUean3xatD3"), // TODO: store this somewhere in the fs
 		},
 		Version: &version.Version{
 			Major: 0,

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/astrorick/seekret/internal/database"
+	"github.com/astrorick/seekret/pkg/jwt"
 	"github.com/astrorick/seekret/pkg/srp"
 
 	//? remove driver from here
@@ -14,8 +15,8 @@ import (
 type Server struct {
 	HTTPPort  uint16
 	Database  *database.Database
-	SRPParams *srp.SRPParams
-	//JWTParams *JWTParams
+	SRPParams *srp.Params
+	JWTParams *jwt.Params
 }
 
 // Start starts the http server with the provided configuration.
