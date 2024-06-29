@@ -78,10 +78,10 @@ func (ss *SeekretServer) Start(configFilePath string) error {
 
 	// use the provided (or the default) server config to generate the server object
 	srv := &server.Server{
-		HTTPPort:  ss.Config.HTTPServerPort,
-		Database:  serverDatabase,
-		SRPParams: ss.SRPParams,
-		JWTParams: ss.JWTParams,
+		HTTPPort: ss.Config.HTTPServerPort,
+		Database: serverDatabase,
+		SRP:      ss.SRPParams,
+		JWT:      ss.JWTParams,
 	}
 
 	// start the http server
@@ -130,7 +130,7 @@ func main() {
 		},
 		JWTParams: &jwt.Params{
 			SigningFcn: jwt.SigningMethodHS512,
-			Key:        []byte("M8qZ3V3nmAvxppeRcQrGvcUean3xatD3"), // TODO: store this somewhere in the fs
+			SecretKey:  []byte("M8qZ3V3nmAvxppeRcQrGvcUean3xatD3"), // TODO: store this somewhere in the fs
 		},
 		Version: &version.Version{
 			Major: 0,
