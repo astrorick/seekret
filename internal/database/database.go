@@ -7,6 +7,8 @@ import (
 	"os"
 
 	"github.com/astrorick/seekret/pkg/version"
+
+	_ "github.com/mattn/go-sqlite3" // sqlite3 driver
 )
 
 type Database struct {

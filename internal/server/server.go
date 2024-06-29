@@ -7,9 +7,6 @@ import (
 	"github.com/astrorick/seekret/internal/database"
 	"github.com/astrorick/seekret/pkg/jwt"
 	"github.com/astrorick/seekret/pkg/srp"
-
-	//? remove driver from here
-	_ "github.com/mattn/go-sqlite3" // sqlite3 driver
 )
 
 type Server struct {

@@ -7,8 +7,7 @@ import (
 	"time"
 
 	"github.com/astrorick/seekret/internal/api"
-
-	gojwt "github.com/golang-jwt/jwt/v4"
+	"github.com/astrorick/seekret/pkg/jwt"
 )
 
 // implement username checks here
@@ -146,7 +145,7 @@ func (srv *Server) CreateUserRequestHandler() http.HandlerFunc {
 		}
 
 		// generate a jwt for the newly created user
-		signedJWTString, err := srv.JWTParams.NewSignedJWTString(gojwt.MapClaims{
+		signedJWTString, err := srv.JWTParams.NewSignedJWTString(jwt.MapClaims{
 			"username": newUserRequest.Username,
 			"exp":      time.Now().Add(24 * time.Hour).Unix(),
 		})

@@ -13,10 +13,6 @@ import (
 	"github.com/astrorick/seekret/pkg/jwt"
 	"github.com/astrorick/seekret/pkg/srp"
 	"github.com/astrorick/seekret/pkg/version"
-
-	gojwt "github.com/golang-jwt/jwt/v4"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 type SeekretServer struct {
@@ -133,7 +129,7 @@ func main() {
 			HashFcn:  crypto.SHA512,
 		},
 		JWTParams: &jwt.Params{
-			SigningFcn: gojwt.SigningMethodHS512,
+			SigningFcn: jwt.SigningMethodHS512,
 			Key:        []byte("M8qZ3V3nmAvxppeRcQrGvcUean3xatD3"), // TODO: store this somewhere in the fs
 		},
 		Version: &version.Version{
