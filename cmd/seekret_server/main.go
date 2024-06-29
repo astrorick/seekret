@@ -25,7 +25,7 @@ type SeekretServer struct {
 
 func (ss *SeekretServer) Start(configFilePath string) error {
 	// print banner and welcome string
-	//fmt.Println(ss.Banner)
+	//fmt.Println(ss.Banner) // TODO: new banner
 	fmt.Printf("Seekret Server v%s by Astrorick\n", ss.Version.String())
 	fmt.Printf("Local datetime is %s\n\n", time.Now().Format("2006-01-02 15:04:05"))
 

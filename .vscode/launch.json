@@ -18,9 +18,11 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/cmd/api_tester_client",
+            "program": "${workspaceFolder}/cmd/seekret_client",
             "env": {},
-            "args": [],
+            "args": [
+                //"-c", "path/to/client/config"
+            ],
             "showLog": true
         }
     ]
