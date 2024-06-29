@@ -1,5 +1,7 @@
 package database
 
+import "fmt"
+
 type User struct {
 	ID       uint64 `db:"id"`
 	Username string `db:"username"`
@@ -33,7 +35,7 @@ func (db *Database) CreateUser(username string, salt []byte, verifier []byte) er
 	return nil
 }
 
-/*func (db *Database) GetUser(username string) (*User, error) {
+func (db *Database) GetUser(username string) (*User, error) {
 	var user User
 	if err := db.SQL.QueryRow("SELECT * FROM users WHERE username = ?", username).Scan(&user.ID, &user.Username, &user.Salt, &user.Verifier); err != nil {
 		return nil, err
@@ -43,9 +45,18 @@ func (db *Database) CreateUser(username string, salt []byte, verifier []byte) er
 }
 
 func (db *Database) DeleteUser(username string) error {
-	if _, err := db.SQL.Exec("DELETE FROM users WHERE username = ?", username); err != nil {
+	result, err := db.SQL.Exec("DELETE FROM users WHERE username = ?", username)
+	if err != nil {
 		return err
 	}
 
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("found no user with username '%s'", username)
+	}
 	return nil
-}*/
+}
